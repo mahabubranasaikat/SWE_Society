@@ -383,11 +383,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     
                     el.innerHTML = `
                         <div class="notice-header">
-                            <div>
-                                <span class="notice-tag">${escapeHtml(tagDisplay)}</span>
-                                <h3 class="notice-title">${escapeHtml(n.title)}</h3>
-                            </div>
-                            ${isOwner ? `<div class="notice-actions"><button class="btn-danger btn-sm" data-id="${n.id}">Delete</button></div>` : ''}
+                            <h3 class="notice-title">${escapeHtml(n.title)}</h3>
+                            <span class="notice-tag">${escapeHtml(tagDisplay)}</span>
                         </div>
                         <div class="notice-meta">
                             <span>By ${escapeHtml(n.author?.name || n.author?.username || 'Unknown')}</span>
@@ -395,10 +392,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <span>${when.toLocaleString()}</span>
                         </div>
                         <p class="notice-desc">${escapeHtml(n.short_description || '')}</p>
+                        <div class="card-actions">
+                            <button class="btn btn-primary btn-sm view-notice-btn" data-id="${n.id}">View Details</button>
+                            ${isOwner ? `<button class="btn btn-danger btn-sm delete-notice-btn" data-id="${n.id}">Delete</button>` : ''}
+                        </div>
                     `;
                     
                     if (isOwner) {
-                        const btn = el.querySelector('.btn-danger');
+                        const btn = el.querySelector('.delete-notice-btn');
                         btn.addEventListener('click', async (e) => {
                             e.preventDefault();
                             const id = btn.getAttribute('data-id');
@@ -492,24 +493,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                     
                     el.innerHTML = `
                         <div class="event-header">
-                            <div>
-                                <span class="event-type-badge">${escapeHtml(formatEventType(event.event_type))}</span>
-                                <h3 class="event-title">${escapeHtml(event.title)}</h3>
-                            </div>
-                            ${(isCreator || isCommittee) ? `<button class="btn-danger btn-sm" data-id="${event.id}">Delete</button>` : ''}
+                            <h3 class="event-title">${escapeHtml(event.title)}</h3>
+                            <span class="event-type-badge">${escapeHtml(formatEventType(event.event_type))}</span>
                         </div>
                         <div class="event-date">📅 ${dateDisplay}</div>
                         ${event.description ? `<p class="event-desc">${escapeHtml(event.description.substring(0, 200))}${event.description.length > 200 ? '...' : ''}</p>` : ''}
                         ${event.registration_link ? `<a href="${escapeHtml(event.registration_link)}" target="_blank" class="event-link">📝 Registration Link</a>` : ''}
+                        <div class="card-actions">
+                            <button class="btn btn-primary btn-sm view-details-btn" data-id="${event.id}">View Details</button>
+                            ${(isCreator || isCommittee) ? `<button class="btn btn-danger btn-sm delete-event-btn" data-id="${event.id}">Delete</button>` : ''}
+                        </div>
                         <div class="event-footer">
                             <span>By ${escapeHtml(event.creator?.name || 'Unknown')}</span>
-                            <button class="btn btn-primary btn-sm view-details-btn" data-id="${event.id}">View Details</button>
                         </div>
                     `;
                     
                     // Delete button handler
                     if (isCreator || isCommittee) {
-                        const deleteBtn = el.querySelector('.btn-danger');
+                        const deleteBtn = el.querySelector('.delete-event-btn');
                         deleteBtn.addEventListener('click', async (e) => {
                             e.preventDefault();
                             const id = deleteBtn.getAttribute('data-id');
@@ -1516,7 +1517,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 } else {
                     items.forEach(item => {
                         const el = document.createElement('div');
-                        el.className = 'notice-card'; // Reuse notice card style
+                        el.className = 'registration-card';
                         
                         let actionBtn = '';
                         if (item.is_creator) {
@@ -1541,12 +1542,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                         }
 
                         el.innerHTML = `
-                            <div class="notice-header">
-                                <div>
-                                    <span class="notice-tag" style="background:${item.type === 'free' ? '#e0f2fe;color:#0369a1' : '#fdf4ff;color:#86198f'}">${item.type.toUpperCase()}</span>
-                                    <h3 class="notice-title">${escapeHtml(item.title)}</h3>
-                                </div>
-                                <div>${actionBtn}</div>
+                            <div class="registration-header">
+                                <h3 class="registration-title">${escapeHtml(item.title)}</h3>
+                                <span class="notice-tag" style="background:${item.type === 'free' ? '#e0f2fe;color:#0369a1' : '#fdf4ff;color:#86198f'}">${item.type.toUpperCase()}</span>
                             </div>
                             <div class="notice-meta">
                                 <span>By ${escapeHtml(item.creator_name)}</span>
@@ -1555,6 +1553,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 ${!item.is_open ? '<span style="color:#ef4444;font-weight:bold">(Closed)</span>' : ''}
                             </div>
                             <p class="notice-desc">${escapeHtml(item.description || '')}</p>
+                            <div class="card-actions">
+                                ${actionBtn}
+                            </div>
                         `;
                         registrationsList.appendChild(el);
                     });
@@ -1632,7 +1633,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 } else {
                     items.forEach(item => {
                         const el = document.createElement('div');
-                        el.className = 'notice-card';
+                        el.className = 'fee-card';
                         
                         let actionBtn = '';
                         if (item.is_creator) {
@@ -1655,20 +1656,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                         }
 
                         el.innerHTML = `
-                            <div class="notice-header">
-                                <div>
-                                    <span class="notice-tag" style="background:#f0fdf4;color:#15803d">FEE</span>
-                                    <h3 class="notice-title">${escapeHtml(item.title)}</h3>
-                                </div>
-                                <div>${actionBtn}</div>
+                            <div class="fee-header">
+                                <h3 class="fee-title">${escapeHtml(item.title)}</h3>
+                                <span class="fee-status" style="background:#f0fdf4;color:#15803d;border:1.5px solid #22c55e">FEE</span>
                             </div>
-                            <div class="notice-meta">
-                                <span>By ${escapeHtml(item.creator_name)}</span>
-                                ${item.deadline ? `<span>📅 Deadline: ${new Date(item.deadline).toLocaleDateString()}</span>` : ''}
-                                <span>💰 ${item.amount} BDT</span>
-                                ${!item.is_open ? '<span style="color:#ef4444;font-weight:bold">(Closed)</span>' : ''}
+                            <div class="fee-meta">
+                                <span class="meta-item">👤 By ${escapeHtml(item.creator_name)}</span>
+                                ${item.deadline ? `<span class="meta-item">📅 ${new Date(item.deadline).toLocaleDateString()}</span>` : ''}
+                                <span class="meta-item">💰 ${item.amount} BDT</span>
+                                ${!item.is_open ? '<span class="meta-item" style="color:#ef4444;font-weight:bold">Closed</span>' : ''}
                             </div>
-                            <p class="notice-desc">${escapeHtml(item.description || '')}</p>
+                            <p class="fee-desc">${escapeHtml(item.description || '')}</p>
+                            <div class="card-actions">
+                                ${actionBtn}
+                            </div>
                         `;
                         feesList.appendChild(el);
                     });
