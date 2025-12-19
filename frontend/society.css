@@ -1374,10 +1374,11 @@ small {
 }
 
 /* Event and Notice Details */
-.event-details,
-.notice-details {
-    padding: 0;
-    width: 100%;
+.notice-details,
+.event-details {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px;
     box-sizing: border-box;
 }
 
@@ -1580,6 +1581,19 @@ small {
     .tab-navigation { flex-direction: column; }
     .events-list { grid-template-columns: 1fr; }
     .form-row { grid-template-columns: 1fr; }
+
+    .container {
+        padding: 20px 14px 60px;
+    }
+
+    .page-surface {
+        padding: 20px;
+    }
+
+    .notice-details,
+    .event-details {
+        padding: 16px;
+    }
 }
 
 /* Meeting Room Creation Styles */
