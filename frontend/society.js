@@ -88,6 +88,7 @@ document.addEventListener('DOMContentLoaded', async () => {
      // ==================== REGISTRATIONS ELEMENTS ====================
      const registrationsList = document.getElementById('registrationsList');
      const registrationsLoading = document.getElementById('registrationsLoading');
+     const registrationsCount = document.getElementById('registrationsCount');
      const createRegistrationOption = document.getElementById('createRegistrationOption');
      const createRegistrationModal = document.getElementById('createRegistrationModal');
      const registrationModalClose = document.getElementById('registrationModalClose');
@@ -109,6 +110,7 @@ document.addEventListener('DOMContentLoaded', async () => {
      // ==================== FEES ELEMENTS ====================
      const feesList = document.getElementById('feesList');
      const feesLoading = document.getElementById('feesLoading');
+     const feesCount = document.getElementById('feesCount');
      const createFeeOption = document.getElementById('createFeeOption');
      const createFeeModal = document.getElementById('createFeeModal');
      const feeModalClose = document.getElementById('feeModalClose');
@@ -1020,6 +1022,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ==================== INITIAL LOAD ====================
     try { await loadNotices(1); } catch {}
     try { await loadEvents(1); } catch {}
+    try { await loadRegistrations(); } catch {}
+    try { await loadFees(); } catch {}
 
     // ==================== LOAD DISCUSSIONS ====================
     async function loadDiscussions() {
@@ -1506,6 +1510,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             if (resp.ok && json.success) {
                 const items = json.data;
+                registrationsCount.textContent = items?.length || 0;
                 if (items.length === 0) {
                     registrationsList.innerHTML = '<div class="empty-state"><p>No registrations available</p></div>';
                 } else {
@@ -1621,6 +1626,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             if (resp.ok && json.success) {
                 const items = json.data;
+                feesCount.textContent = items?.length || 0;
                 if (items.length === 0) {
                     feesList.innerHTML = '<div class="empty-state"><p>No fees available</p></div>';
                 } else {
@@ -1985,7 +1991,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // ==================== INITIALIZE APPROVAL MANAGER ====================
     approvalManager = new ApprovalManager(API_BASE);
-    approvalManager.init().catch(error => {
+    approvalManager.init().then(() => {
+        // Load approvals after initialization
+        try { approvalManager.loadApprovals(); } catch (error) {
+            console.error('Error loading approvals:', error);
+        }
+    }).catch(error => {
         console.error('Error initializing approval manager:', error);
     });
     
