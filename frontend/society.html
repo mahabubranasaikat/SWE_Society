@@ -453,51 +453,98 @@
         </div>
     </div>
 
-    <!-- Create Registration Modal -->
-    <div class="modal" id="createRegistrationModal" style="display: none;">
-        <div class="modal-overlay"></div>
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Create Registration</h3>
-                <button class="modal-close" id="registrationModalClose">&times;</button>
-            </div>
-            <form id="createRegistrationForm">
-                <div class="form-group">
-                    <label for="regTitle">Title <span class="required">*</span></label>
-                    <input type="text" id="regTitle" required placeholder="e.g., Annual Picnic">
-                </div>
-                <div class="form-group">
-                    <label for="regDesc">Description</label>
-                    <textarea id="regDesc" rows="3" placeholder="Details about the registration..."></textarea>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="regDeadline">Deadline</label>
-                        <input type="datetime-local" id="regDeadline">
-                    </div>
-                    <div class="form-group">
-                        <label for="regType">Type <span class="required">*</span></label>
-                        <select id="regType" required>
-                            <option value="free">Free</option>
-                            <option value="paid">Paid</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group" id="regFeeGroup" style="display:none;">
-                    <label for="regFee">Fee Amount (BDT) <span class="required">*</span></label>
-                    <input type="number" id="regFee" min="0" step="0.01">
-                </div>
-                <div class="alert alert-error" id="regAlert" style="display: none;"></div>
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" id="cancelRegBtn">Cancel</button>
-                    <button type="submit" class="btn btn-primary" id="submitRegBtn">
-                        <span class="btn-text">Create Registration</span>
-                        <span class="spinner" style="display: none;"></span>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+     <!-- Create Registration Modal -->
+     <div class="modal" id="createRegistrationModal" style="display: none;">
+         <div class="modal-overlay"></div>
+         <div class="modal-content">
+             <div class="modal-header">
+                 <h3>Create Registration</h3>
+                 <button class="modal-close" id="registrationModalClose">&times;</button>
+             </div>
+             <form id="createRegistrationForm">
+                 <div class="form-group">
+                     <label for="regTitle">Title <span class="required">*</span></label>
+                     <input type="text" id="regTitle" required placeholder="e.g., Annual Picnic">
+                 </div>
+                 <div class="form-group">
+                     <label for="regDesc">Description</label>
+                     <textarea id="regDesc" rows="3" placeholder="Details about the registration..."></textarea>
+                 </div>
+                 <div class="form-row">
+                     <div class="form-group">
+                         <label for="regDeadline">Deadline</label>
+                         <input type="datetime-local" id="regDeadline">
+                     </div>
+                     <div class="form-group">
+                         <label for="regType">Type <span class="required">*</span></label>
+                         <select id="regType" required>
+                             <option value="free">Free</option>
+                             <option value="paid">Paid</option>
+                         </select>
+                     </div>
+                 </div>
+                 <div class="form-group" id="regFeeGroup" style="display:none;">
+                     <label for="regFee">Fee Amount (BDT) <span class="required">*</span></label>
+                     <input type="number" id="regFee" min="0" step="0.01">
+                 </div>
+                 <div class="alert alert-error" id="regAlert" style="display: none;"></div>
+                 <div class="modal-actions">
+                     <button type="button" class="btn btn-secondary" id="cancelRegBtn">Cancel</button>
+                     <button type="submit" class="btn btn-primary" id="submitRegBtn">
+                         <span class="btn-text">Create Registration</span>
+                         <span class="spinner" style="display: none;"></span>
+                     </button>
+                 </div>
+             </form>
+         </div>
+     </div>
+
+     <!-- Edit Registration Modal -->
+     <div class="modal" id="editRegistrationModal" style="display: none;">
+         <div class="modal-overlay"></div>
+         <div class="modal-content">
+             <div class="modal-header">
+                 <h3>Edit Registration</h3>
+                 <button class="modal-close" id="editRegistrationModalClose">&times;</button>
+             </div>
+             <form id="editRegistrationForm">
+                 <input type="hidden" id="editRegId">
+                 <div class="form-group">
+                     <label for="editRegTitle">Title <span class="required">*</span></label>
+                     <input type="text" id="editRegTitle" required placeholder="e.g., Annual Picnic">
+                 </div>
+                 <div class="form-group">
+                     <label for="editRegDesc">Description</label>
+                     <textarea id="editRegDesc" rows="3" placeholder="Details about the registration..."></textarea>
+                 </div>
+                 <div class="form-row">
+                     <div class="form-group">
+                         <label for="editRegDeadline">Deadline</label>
+                         <input type="datetime-local" id="editRegDeadline">
+                     </div>
+                     <div class="form-group">
+                         <label for="editRegType">Type <span class="required">*</span></label>
+                         <select id="editRegType" required>
+                             <option value="free">Free</option>
+                             <option value="paid">Paid</option>
+                         </select>
+                     </div>
+                 </div>
+                 <div class="form-group" id="editRegFeeGroup" style="display:none;">
+                     <label for="editRegFee">Fee Amount (BDT) <span class="required">*</span></label>
+                     <input type="number" id="editRegFee" min="0" step="0.01">
+                 </div>
+                 <div class="alert alert-error" id="editRegAlert" style="display: none;"></div>
+                 <div class="modal-actions">
+                     <button type="button" class="btn btn-secondary" id="cancelEditRegBtn">Cancel</button>
+                     <button type="submit" class="btn btn-primary" id="submitEditRegBtn">
+                         <span class="btn-text">Update Registration</span>
+                         <span class="spinner" style="display: none;"></span>
+                     </button>
+                 </div>
+             </form>
+         </div>
+     </div>
 
     <!-- Create Fee Modal -->
     <div class="modal" id="createFeeModal" style="display: none;">

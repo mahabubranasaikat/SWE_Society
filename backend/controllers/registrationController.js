@@ -51,22 +51,86 @@ exports.createRegistration = async (req, res) => {
     }
 };
 
+exports.getRegistration = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.userId;
+
+        const [registrations] = await db.query(`
+            SELECT r.*, u.name as creator_name
+            FROM registrations r
+            JOIN users u ON r.created_by = u.id
+            WHERE r.id = ?
+        `, [id]);
+
+        if (registrations.length === 0) {
+            return res.status(404).json({ success: false, message: 'Registration not found' });
+        }
+
+        const reg = registrations[0];
+
+        // Check if user can view this registration (creator or committee)
+        const canView = reg.created_by === userId || await hasSocietyRole(userId);
+        if (!canView) {
+            return res.status(403).json({ success: false, message: 'Access denied' });
+        }
+
+        res.json({ success: true, data: reg });
+    } catch (error) {
+        console.error('Error fetching registration:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+exports.updateRegistration = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, description, deadline, type, fee_amount } = req.body;
+        const userId = req.user.userId;
+
+        // Check if user is creator
+        if (!(await isCreator(userId, id))) {
+            return res.status(403).json({ success: false, message: 'Only creator can update registration' });
+        }
+
+        // Validate required fields
+        if (!title || !type) {
+            return res.status(400).json({ success: false, message: 'Title and type are required' });
+        }
+
+        if (type === 'paid' && !fee_amount) {
+            return res.status(400).json({ success: false, message: 'Fee amount is required for paid registrations' });
+        }
+
+        // Update registration
+        await db.query(
+            'UPDATE registrations SET title = ?, description = ?, deadline = ?, type = ?, fee_amount = ? WHERE id = ?',
+            [title, description, deadline || null, type, type === 'paid' ? fee_amount : null, id]
+        );
+
+        res.json({ success: true, message: 'Registration updated successfully' });
+    } catch (error) {
+        console.error('Error updating registration:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
 exports.getRegistrations = async (req, res) => {
     try {
         const userId = req.user.userId;
-        
+
         // Get all registrations
         const [registrations] = await db.query(`
-            SELECT r.*, u.name as creator_name 
-            FROM registrations r 
-            JOIN users u ON r.created_by = u.id 
+            SELECT r.*, u.name as creator_name
+            FROM registrations r
+            JOIN users u ON r.created_by = u.id
             ORDER BY r.created_at DESC
         `);
 
         // For each registration, check status for current user
         const data = await Promise.all(registrations.map(async (reg) => {
             let status = 'not_registered';
-            
+
             if (reg.type === 'free') {
                 const [participant] = await db.query(
                     'SELECT 1 FROM registration_participants WHERE registration_id = ? AND user_id = ?',

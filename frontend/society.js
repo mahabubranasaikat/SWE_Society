@@ -85,17 +85,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let currentEventId = null;
 
-    // ==================== REGISTRATIONS ELEMENTS ====================
-    const registrationsList = document.getElementById('registrationsList');
-    const registrationsLoading = document.getElementById('registrationsLoading');
-    const createRegistrationOption = document.getElementById('createRegistrationOption');
-    const createRegistrationModal = document.getElementById('createRegistrationModal');
-    const registrationModalClose = document.getElementById('registrationModalClose');
-    const cancelRegBtn = document.getElementById('cancelRegBtn');
-    const createRegistrationForm = document.getElementById('createRegistrationForm');
-    const regTypeSelect = document.getElementById('regType');
-    const regFeeGroup = document.getElementById('regFeeGroup');
-    const regAlert = document.getElementById('regAlert');
+     // ==================== REGISTRATIONS ELEMENTS ====================
+     const registrationsList = document.getElementById('registrationsList');
+     const registrationsLoading = document.getElementById('registrationsLoading');
+     const createRegistrationOption = document.getElementById('createRegistrationOption');
+     const createRegistrationModal = document.getElementById('createRegistrationModal');
+     const registrationModalClose = document.getElementById('registrationModalClose');
+     const cancelRegBtn = document.getElementById('cancelRegBtn');
+     const createRegistrationForm = document.getElementById('createRegistrationForm');
+     const regTypeSelect = document.getElementById('regType');
+     const regFeeGroup = document.getElementById('regFeeGroup');
+     const regAlert = document.getElementById('regAlert');
+
+     // Edit Registration Modal elements
+     const editRegistrationModal = document.getElementById('editRegistrationModal');
+     const editRegistrationModalClose = document.getElementById('editRegistrationModalClose');
+     const cancelEditRegBtn = document.getElementById('cancelEditRegBtn');
+     const editRegistrationForm = document.getElementById('editRegistrationForm');
+     const editRegTypeSelect = document.getElementById('editRegType');
+     const editRegFeeGroup = document.getElementById('editRegFeeGroup');
+     const editRegAlert = document.getElementById('editRegAlert');
 
     // ==================== FEES ELEMENTS ====================
     const feesList = document.getElementById('feesList');
@@ -1147,13 +1156,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ==================== REGISTRATIONS & FEES LOGIC ====================
 
     // --- Modals ---
-    function openRegistrationModal() { createRegistrationModal.style.display = 'flex'; }
-    function closeRegistrationModal() { 
-        createRegistrationModal.style.display = 'none'; 
-        createRegistrationForm.reset(); 
-        regFeeGroup.style.display = 'none';
-        regAlert.style.display = 'none';
-    }
+     function openRegistrationModal() { createRegistrationModal.style.display = 'flex'; }
+     function closeRegistrationModal() {
+         createRegistrationModal.style.display = 'none';
+         createRegistrationForm.reset();
+         regFeeGroup.style.display = 'none';
+         regAlert.style.display = 'none';
+     }
+
+     function openEditRegistrationModal() { editRegistrationModal.style.display = 'flex'; }
+     function closeEditRegistrationModal() {
+         editRegistrationModal.style.display = 'none';
+         editRegistrationForm.reset();
+         editRegFeeGroup.style.display = 'none';
+         editRegAlert.style.display = 'none';
+     }
 
     function openFeeModal() { createFeeModal.style.display = 'flex'; }
     function closeFeeModal() { 
@@ -1197,17 +1214,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         openFeeModal();
     });
 
-    if (registrationModalClose) registrationModalClose.addEventListener('click', closeRegistrationModal);
-    if (cancelRegBtn) cancelRegBtn.addEventListener('click', closeRegistrationModal);
+     if (registrationModalClose) registrationModalClose.addEventListener('click', closeRegistrationModal);
+     if (cancelRegBtn) cancelRegBtn.addEventListener('click', closeRegistrationModal);
+
+     if (editRegistrationModalClose) editRegistrationModalClose.addEventListener('click', closeEditRegistrationModal);
+     if (cancelEditRegBtn) cancelEditRegBtn.addEventListener('click', closeEditRegistrationModal);
     if (feeModalClose) feeModalClose.addEventListener('click', closeFeeModal);
     if (cancelFeeBtn) cancelFeeBtn.addEventListener('click', closeFeeModal);
     if (paymentModalClose) paymentModalClose.addEventListener('click', closePaymentModal);
     if (cancelPayBtn) cancelPayBtn.addEventListener('click', closePaymentModal);
     if (manageModalClose) manageModalClose.addEventListener('click', closeManageModal);
 
-    // Overlay click listeners
-    const regOverlay = createRegistrationModal?.querySelector('.modal-overlay');
-    if (regOverlay) regOverlay.addEventListener('click', closeRegistrationModal);
+     // Overlay click listeners
+     const regOverlay = createRegistrationModal?.querySelector('.modal-overlay');
+     if (regOverlay) regOverlay.addEventListener('click', closeRegistrationModal);
+
+     const editRegOverlay = editRegistrationModal?.querySelector('.modal-overlay');
+     if (editRegOverlay) editRegOverlay.addEventListener('click', closeEditRegistrationModal);
 
     const feeOverlay = createFeeModal?.querySelector('.modal-overlay');
     if (feeOverlay) feeOverlay.addEventListener('click', closeFeeModal);
@@ -1218,56 +1241,108 @@ document.addEventListener('DOMContentLoaded', async () => {
     const manageOverlay = manageModal?.querySelector('.modal-overlay');
     if (manageOverlay) manageOverlay.addEventListener('click', closeManageModal);
 
-    // Toggle fee input in registration form
-    if (regTypeSelect) {
-        regTypeSelect.addEventListener('change', (e) => {
-            regFeeGroup.style.display = e.target.value === 'paid' ? 'block' : 'none';
-            document.getElementById('regFee').required = e.target.value === 'paid';
-        });
-    }
+     // Toggle fee input in registration form
+     if (regTypeSelect) {
+         regTypeSelect.addEventListener('change', (e) => {
+             regFeeGroup.style.display = e.target.value === 'paid' ? 'block' : 'none';
+             document.getElementById('regFee').required = e.target.value === 'paid';
+         });
+     }
 
-    // --- Create Registration ---
-    if (createRegistrationForm) {
-        createRegistrationForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('submitRegBtn');
-            btn.disabled = true;
-            btn.querySelector('.spinner').style.display = 'inline-block';
-            btn.querySelector('.btn-text').style.display = 'none';
-            regAlert.style.display = 'none';
+     // Toggle fee input in edit registration form
+     if (editRegTypeSelect) {
+         editRegTypeSelect.addEventListener('change', (e) => {
+             editRegFeeGroup.style.display = e.target.value === 'paid' ? 'block' : 'none';
+             document.getElementById('editRegFee').required = e.target.value === 'paid';
+         });
+     }
 
-            const data = {
-                title: document.getElementById('regTitle').value,
-                description: document.getElementById('regDesc').value,
-                deadline: document.getElementById('regDeadline').value,
-                type: document.getElementById('regType').value,
-                fee_amount: document.getElementById('regFee').value
-            };
+     // --- Create Registration ---
+     if (createRegistrationForm) {
+         createRegistrationForm.addEventListener('submit', async (e) => {
+             e.preventDefault();
+             const btn = document.getElementById('submitRegBtn');
+             btn.disabled = true;
+             btn.querySelector('.spinner').style.display = 'inline-block';
+             btn.querySelector('.btn-text').style.display = 'none';
+             regAlert.style.display = 'none';
 
-            try {
-                const resp = await window.authManager.authenticatedFetch(`${API_BASE}/registrations`, {
-                    method: 'POST',
-                    body: JSON.stringify(data)
-                });
-                const json = await resp.json();
-                if (resp.ok && json.success) {
-                    closeRegistrationModal();
-                    loadRegistrations();
-                    document.querySelector('[data-tab="registrations"]').click();
-                } else {
-                    regAlert.textContent = json.message || 'Failed to create';
-                    regAlert.style.display = 'block';
-                }
-            } catch (err) {
-                regAlert.textContent = 'Network error';
-                regAlert.style.display = 'block';
-            } finally {
-                btn.disabled = false;
-                btn.querySelector('.spinner').style.display = 'none';
-                btn.querySelector('.btn-text').style.display = 'inline';
-            }
-        });
-    }
+             const data = {
+                 title: document.getElementById('regTitle').value,
+                 description: document.getElementById('regDesc').value,
+                 deadline: document.getElementById('regDeadline').value,
+                 type: document.getElementById('regType').value,
+                 fee_amount: document.getElementById('regFee').value
+             };
+
+             try {
+                 const resp = await window.authManager.authenticatedFetch(`${API_BASE}/registrations`, {
+                     method: 'POST',
+                     body: JSON.stringify(data)
+                 });
+                 const json = await resp.json();
+                 if (resp.ok && json.success) {
+                     closeRegistrationModal();
+                     loadRegistrations();
+                     document.querySelector('[data-tab="registrations"]').click();
+                 } else {
+                     regAlert.textContent = json.message || 'Failed to create';
+                     regAlert.style.display = 'block';
+                 }
+             } catch (err) {
+                 regAlert.textContent = 'Network error';
+                 regAlert.style.display = 'block';
+             } finally {
+                 btn.disabled = false;
+                 btn.querySelector('.spinner').style.display = 'none';
+                 btn.querySelector('.btn-text').style.display = 'inline';
+             }
+         });
+     }
+
+     // --- Edit Registration ---
+     if (editRegistrationForm) {
+         editRegistrationForm.addEventListener('submit', async (e) => {
+             e.preventDefault();
+             const btn = document.getElementById('submitEditRegBtn');
+             btn.disabled = true;
+             btn.querySelector('.spinner').style.display = 'inline-block';
+             btn.querySelector('.btn-text').style.display = 'none';
+             editRegAlert.style.display = 'none';
+
+             const regId = document.getElementById('editRegId').value;
+             const data = {
+                 title: document.getElementById('editRegTitle').value,
+                 description: document.getElementById('editRegDesc').value,
+                 deadline: document.getElementById('editRegDeadline').value,
+                 type: document.getElementById('editRegType').value,
+                 fee_amount: document.getElementById('editRegFee').value
+             };
+
+             try {
+                 const resp = await window.authManager.authenticatedFetch(`${API_BASE}/registrations/${regId}`, {
+                     method: 'PUT',
+                     body: JSON.stringify(data)
+                 });
+                 const json = await resp.json();
+                 if (resp.ok && json.success) {
+                     closeEditRegistrationModal();
+                     loadRegistrations();
+                     document.querySelector('[data-tab="registrations"]').click();
+                 } else {
+                     editRegAlert.textContent = json.message || 'Failed to update';
+                     editRegAlert.style.display = 'block';
+                 }
+             } catch (err) {
+                 editRegAlert.textContent = 'Network error';
+                 editRegAlert.style.display = 'block';
+             } finally {
+                 btn.disabled = false;
+                 btn.querySelector('.spinner').style.display = 'none';
+                 btn.querySelector('.btn-text').style.display = 'inline';
+             }
+         });
+     }
 
     // --- Create Fee ---
     if (createFeeForm) {
@@ -1710,31 +1785,48 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    if (editBtn) {
-        editBtn.addEventListener('click', async () => {
-            const ctx = currentManageContext;
-            if (!confirm(`Edit ${ctx.type === 'registration' ? 'Registration' : 'Fee'}: ${ctx.title}?`)) return;
-            
-            closeManageModal();
-            // Fetch current data and show edit capability
-            try {
-                let endpoint = ctx.type === 'registration' 
-                    ? `${API_BASE}/registrations/${ctx.id}` 
-                    : `${API_BASE}/fees/${ctx.id}`;
-                
-                const resp = await window.authManager.authenticatedFetch(endpoint);
-                const json = await resp.json();
-                
-                if (resp.ok && json.success) {
-                    const data = json.data;
-                    alert(`Edit for ${ctx.type === 'registration' ? 'Registration' : 'Fee'} coming soon.\n\nCurrent Title: ${data.title}`);
-                }
-            } catch (e) {
-                console.error(e);
-                alert('Failed to load data');
-            }
-        });
-    }
+     if (editBtn) {
+         editBtn.addEventListener('click', async () => {
+             const ctx = currentManageContext;
+             if (!confirm(`Edit ${ctx.type === 'registration' ? 'Registration' : 'Fee'}: ${ctx.title}?`)) return;
+
+             closeManageModal();
+             // Fetch current data and show edit form
+             try {
+                 let endpoint = ctx.type === 'registration'
+                     ? `${API_BASE}/registrations/${ctx.id}`
+                     : `${API_BASE}/fees/${ctx.id}`;
+
+                 const resp = await window.authManager.authenticatedFetch(endpoint);
+                 const json = await resp.json();
+
+                 if (resp.ok && json.success) {
+                     const data = json.data;
+                     if (ctx.type === 'registration') {
+                         // Populate edit registration form
+                         document.getElementById('editRegId').value = data.id;
+                         document.getElementById('editRegTitle').value = data.title;
+                         document.getElementById('editRegDesc').value = data.description || '';
+                         document.getElementById('editRegDeadline').value = data.deadline ? new Date(data.deadline).toISOString().slice(0, 16) : '';
+                         document.getElementById('editRegType').value = data.type;
+                         document.getElementById('editRegFee').value = data.fee_amount || '';
+
+                         // Show/hide fee group based on type
+                         editRegFeeGroup.style.display = data.type === 'paid' ? 'block' : 'none';
+                         document.getElementById('editRegFee').required = data.type === 'paid';
+
+                         openEditRegistrationModal();
+                     } else {
+                         // For fees, we don't have edit modal yet, show alert
+                         alert(`Edit for Fee coming soon.\n\nCurrent Title: ${data.title}`);
+                     }
+                 }
+             } catch (e) {
+                 console.error(e);
+                 alert('Failed to load data');
+             }
+         });
+     }
 
     if (finishBtn) {
         finishBtn.addEventListener('click', async () => {
