@@ -179,6 +179,12 @@ exports.getAllApprovalRequests = async (req, res) => {
                 SELECT approval_request_id FROM approval_recipients WHERE user_id = ?
             )`;
             params.push(userId);
+        } else if (filterType === 'all') {
+            // When filterType is 'all', show approvals where user is creator OR recipient
+            whereClause += ` AND (ar.created_by = ? OR ar.id IN (
+                SELECT approval_request_id FROM approval_recipients WHERE user_id = ?
+            ))`;
+            params.push(userId, userId);
         }
 
         const [rows] = await db.query(

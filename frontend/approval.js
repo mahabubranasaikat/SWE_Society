@@ -184,7 +184,7 @@ class ApprovalManager {
 
                     <div class="approval-actions">
                         <button class="btn-small btn-view" onclick="approvalManager.showDetails(${approval.id})">View Details</button>
-                        ${this.currentUser && this.currentUser.id === approval.creator_id ? `
+                        ${this.currentUser && this.currentUser.userId === approval.creator_id ? `
                             <button class="btn-small btn-edit" onclick="approvalManager.showEditModal(${approval.id})">Edit</button>
                             <button class="btn-small btn-delete" onclick="approvalManager.deleteApproval(${approval.id})">Delete</button>
                             ${approval.status === 'active' ? `<button class="btn-small btn-complete" onclick="approvalManager.completeApproval(${approval.id})">Mark Complete</button>` : ''}
@@ -297,28 +297,28 @@ class ApprovalManager {
                                 </div>
                             </div>
 
-                            ${this.currentUser && this.currentUser.id !== data.creator_id ? `
-                                <div class="approval-detail-section">
-                                    <h4>Your Response</h4>
-                                    ${data.recipients.some(r => r.user_id === this.currentUser.id && r.status === 'pending') ? `
-                                        <div class="response-form">
-                                            <textarea id="responseNotes" placeholder="Add notes (optional)"></textarea>
-                                            <div class="button-group">
-                                                <button class="btn btn-success" onclick="approvalManager.submitResponse(${id}, 'approved')">
-                                                    ✓ Approve
-                                                </button>
-                                                <button class="btn btn-danger" onclick="approvalManager.submitResponse(${id}, 'rejected')">
-                                                    ✗ Reject
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ` : data.recipients.find(r => r.user_id === this.currentUser.id) ? `
-                                        <p class="your-response">
-                                            Your response: <strong>${data.recipients.find(r => r.user_id === this.currentUser.id).status}</strong>
-                                        </p>
-                                    ` : ''}
-                                </div>
-                            ` : ''}
+                         ${this.currentUser && this.currentUser.userId !== data.creator_id ? `
+                             <div class="approval-detail-section">
+                                 <h4>Your Response</h4>
+                                 ${data.recipients.some(r => r.user_id === this.currentUser.userId && r.status === 'pending') ? `
+                                     <div class="response-form">
+                                         <textarea id="responseNotes" placeholder="Add notes (optional)"></textarea>
+                                         <div class="button-group">
+                                             <button class="btn btn-success" onclick="approvalManager.submitResponse(${id}, 'approved')">
+                                                 ✓ Approve
+                                             </button>
+                                             <button class="btn btn-danger" onclick="approvalManager.submitResponse(${id}, 'rejected')">
+                                                 ✗ Reject
+                                             </button>
+                                         </div>
+                                     </div>
+                                 ` : data.recipients.find(r => r.user_id === this.currentUser.userId) ? `
+                                     <p class="your-response">
+                                         Your response: <strong>${data.recipients.find(r => r.user_id === this.currentUser.userId).status}</strong>
+                                     </p>
+                                 ` : ''}
+                             </div>
+                         ` : ''}
                         </div>
 
                         <div class="modal-footer">
@@ -711,7 +711,7 @@ class ApprovalManager {
     filterApprovals(type) {
         // Filter logic
         const filtered = this.approvals.filter(a => {
-            if (type === 'created') return a.creator_id === this.currentUser?.id;
+            if (type === 'created') return a.creator_id === this.currentUser?.userId;
             if (type === 'active') return a.status === 'active';
             if (type === 'completed') return a.status === 'completed';
             return true;
