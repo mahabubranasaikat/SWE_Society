@@ -433,27 +433,41 @@
         </div>
     </div>
 
-    <!-- Event Details Modal -->
-    <div class="modal" id="eventDetailsModal" style="display:none;">
-        <div class="modal-overlay" id="detailsOverlay"></div>
-        <div class="modal-content modal-large">
-            <div class="modal-header">
-                <h3 id="detailsTitle">Event Details</h3>
-                <button class="modal-close" id="detailsClose">×</button>
-            </div>
-            <div id="eventDetailsContent" class="event-details">
-                <!-- Event details will be populated here -->
-            </div>
-            <div class="updates-section">
-                <h4>Updates</h4>
-                <form id="addUpdateForm" class="update-form" style="display:none;">
-                    <textarea id="updateText" placeholder="Add an update..." rows="3" required></textarea>
-                    <button type="submit" class="btn btn-primary btn-sm">Post Update</button>
-                </form>
-                <div id="updatesList" class="updates-list"></div>
-            </div>
-        </div>
-    </div>
+     <!-- Event Details Modal -->
+     <div class="modal" id="eventDetailsModal" style="display:none;">
+         <div class="modal-overlay" id="detailsOverlay"></div>
+         <div class="modal-content modal-large">
+             <div class="modal-header">
+                 <h3 id="detailsTitle">Event Details</h3>
+                 <button class="modal-close" id="detailsClose">×</button>
+             </div>
+             <div id="eventDetailsContent" class="event-details">
+                 <!-- Event details will be populated here -->
+             </div>
+             <div class="updates-section">
+                 <h4>Updates</h4>
+                 <form id="addUpdateForm" class="update-form" style="display:none;">
+                     <textarea id="updateText" placeholder="Add an update..." rows="3" required></textarea>
+                     <button type="submit" class="btn btn-primary btn-sm">Post Update</button>
+                 </form>
+                 <div id="updatesList" class="updates-list"></div>
+             </div>
+         </div>
+     </div>
+
+     <!-- Notice Details Modal -->
+     <div class="modal" id="noticeDetailsModal" style="display:none;">
+         <div class="modal-overlay" id="noticeDetailsOverlay"></div>
+         <div class="modal-content modal-large">
+             <div class="modal-header">
+                 <h3>Notice Details</h3>
+                 <button class="modal-close" id="noticeDetailsClose">×</button>
+             </div>
+             <div id="noticeDetailsContent" class="notice-details">
+                 <!-- Notice details will be populated here -->
+             </div>
+         </div>
+     </div>
 
      <!-- Create Registration Modal -->
      <div class="modal" id="createRegistrationModal" style="display: none;">

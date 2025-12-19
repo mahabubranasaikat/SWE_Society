@@ -83,6 +83,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const updatesList = document.getElementById('updatesList');
     const addUpdateForm = document.getElementById('addUpdateForm');
 
+    // Notice Details Modal elements
+    const noticeDetailsModal = document.getElementById('noticeDetailsModal');
+    const noticeDetailsOverlay = document.getElementById('noticeDetailsOverlay');
+    const noticeDetailsClose = document.getElementById('noticeDetailsClose');
+    const noticeDetailsContent = document.getElementById('noticeDetailsContent');
+
     let currentEventId = null;
 
      // ==================== REGISTRATIONS ELEMENTS ====================
@@ -189,9 +195,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function openDetailsModal() { detailsModal.style.display = 'flex'; }
-    function closeDetailsModal() { 
-        detailsModal.style.display = 'none'; 
+    function closeDetailsModal() {
+        detailsModal.style.display = 'none';
         currentEventId = null;
+    }
+
+    function openNoticeDetailsModal() { noticeDetailsModal.style.display = 'flex'; }
+    function closeNoticeDetailsModal() {
+        noticeDetailsModal.style.display = 'none';
     }
 
     // Modal event listeners
@@ -205,6 +216,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (detailsOverlay) detailsOverlay.addEventListener('click', closeDetailsModal);
     if (detailsClose) detailsClose.addEventListener('click', closeDetailsModal);
+
+    if (noticeDetailsOverlay) noticeDetailsOverlay.addEventListener('click', closeNoticeDetailsModal);
+    if (noticeDetailsClose) noticeDetailsClose.addEventListener('click', closeNoticeDetailsModal);
 
     // ==================== AUTH & ROLE CHECK ====================
     let currentUser = null;
@@ -424,10 +438,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 alert('Network error. Please try again.');
                             }
                         });
-                    }
-                    noticesList.appendChild(el);
-                }
-                noticesList.style.display = 'flex';
+                     }
+
+                     // Add view details event listener
+                     const viewBtn = el.querySelector('.view-notice-btn');
+                     viewBtn.addEventListener('click', () => {
+                         loadNoticeDetails(n.id);
+                     });
+
+                     noticesList.appendChild(el);
+                 }
+                 noticesList.style.display = 'flex';
             }
         } catch (e) {
             console.error('Failed to load notices', e);
@@ -493,7 +514,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     
                     el.innerHTML = `
                         <div class="event-header">
-                            <h3 class="event-title">${escapeHtml(event.title)}</h3>
+                            <div class="event-title-group">
+                                <h3 class="event-title">${escapeHtml(event.title)}</h3>
+                                <span class="event-creator-meta">👤 ${escapeHtml(event.creator?.name || 'Unknown')}</span>
+                            </div>
                             <span class="event-type-badge">${escapeHtml(formatEventType(event.event_type))}</span>
                         </div>
                         <div class="event-date">📅 ${dateDisplay}</div>
@@ -502,9 +526,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div class="card-actions">
                             <button class="btn btn-primary btn-sm view-details-btn" data-id="${event.id}">View Details</button>
                             ${(isCreator || isCommittee) ? `<button class="btn btn-danger btn-sm delete-event-btn" data-id="${event.id}">Delete</button>` : ''}
-                        </div>
-                        <div class="event-footer">
-                            <span>By ${escapeHtml(event.creator?.name || 'Unknown')}</span>
                         </div>
                     `;
                     
@@ -562,20 +583,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ==================== LOAD EVENT DETAILS ====================
     async function loadEventDetails(eventId) {
         currentEventId = eventId;
-        
+
         try {
             const resp = await fetch(`${API_BASE}/events/${eventId}`);
             const json = await resp.json();
-            
+
             if (json.success) {
                 const event = json.data;
-                
+
                 const startDate = formatDate(event.start_date);
                 const endDate = event.end_date ? formatDate(event.end_date) : null;
-                const dateDisplay = endDate && endDate !== startDate 
-                    ? `${startDate} - ${endDate}` 
+                const dateDisplay = endDate && endDate !== startDate
+                    ? `${startDate} - ${endDate}`
                     : startDate;
-                
+
                 detailsContent.innerHTML = `
                     <div class="event-detail-header">
                         <span class="event-type-badge">${escapeHtml(formatEventType(event.event_type))}</span>
@@ -589,15 +610,47 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <p><strong>Posted:</strong> ${new Date(event.created_at).toLocaleString()}</p>
                     </div>
                 `;
-                
+
                 // Load updates
                 loadEventUpdates(eventId);
-                
+
                 openDetailsModal();
             }
         } catch (error) {
             console.error('Error loading event details:', error);
             alert('Failed to load event details');
+        }
+    }
+
+    // ==================== LOAD NOTICE DETAILS ====================
+    async function loadNoticeDetails(noticeId) {
+        try {
+            const resp = await fetch(`${API_BASE}/society-notices/${noticeId}`);
+            const json = await resp.json();
+
+            if (json.success) {
+                const notice = json.data;
+                const when = new Date(notice.created_at);
+                const tagDisplay = notice.tag ? notice.tag.replace(/_/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'Notice';
+
+                noticeDetailsContent.innerHTML = `
+                    <div class="event-detail-header">
+                        <span class="notice-tag">${escapeHtml(tagDisplay)}</span>
+                        <h2>${escapeHtml(notice.title)}</h2>
+                        <div class="event-date">📅 ${when.toLocaleString()}</div>
+                    </div>
+                    ${notice.description ? `<div class="event-description"><p>${escapeHtml(notice.description)}</p></div>` : ''}
+                    <div class="event-meta">
+                        <p><strong>Posted by:</strong> ${escapeHtml(notice.author?.name || notice.author?.username || 'Unknown')}</p>
+                        <p><strong>Posted:</strong> ${when.toLocaleString()}</p>
+                    </div>
+                `;
+
+                openNoticeDetailsModal();
+            }
+        } catch (error) {
+            console.error('Error loading notice details:', error);
+            alert('Failed to load notice details');
         }
     }
 
@@ -1834,7 +1887,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 btn.disabled = false;
                 btn.style.opacity = '1';
             }
-        }
+ }
     }
 
     // Manage modal action buttons
@@ -2001,4 +2054,5 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('Error initializing approval manager:', error);
     });
     
+    // Notice details modal is now handled in loadNotices function
 });

@@ -731,6 +731,28 @@ a { text-decoration: none; color: inherit; }
     gap: 10px;
 }
 
+/* Event Creator Meta */
+.event-meta-creator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #888;
+    margin-top: 8px;
+    margin-bottom: 0;
+    font-weight: 500;
+}
+.event-creator-label {
+    font-size: 13px;
+    color: #bdbdbd;
+}
+.event-creator-name {
+    font-size: 12px;
+    color: #555;
+    font-weight: 600;
+    word-break: break-word;
+}
+
 /* Card Actions - footer buttons */
 .card-actions {
     display: flex;
@@ -1021,39 +1043,51 @@ a { text-decoration: none; color: inherit; }
 }
 
 /* Modal Enhancement */
-.modal { 
-    position: fixed; 
-    inset: 0; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
+.modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     z-index: 1000;
 }
 
-.modal-overlay { 
-    position: absolute; 
-    inset: 0; 
+.modal-overlay {
+    position: fixed;
+    inset: 0;
     background: rgba(0, 0, 0, 0.45);
     backdrop-filter: blur(6px);
     transition: background 0.3s ease;
+    z-index: 1;
 }
 
-.modal-content { 
-    position: relative; 
-    width: 100%; 
+.modal-content {
+    position: relative;
+    width: 100%;
     max-width: 95%;
     max-height: 95vh;
     background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%);
     border: 2px solid #c9bfdb;
-    border-radius: 16px; 
-    padding: 32px; 
-    overflow-y: auto; 
+    border-radius: 16px;
+    padding: 32px;
+    overflow-y: auto;
+    overflow-x: hidden;
     box-shadow: 0 20px 60px rgba(84, 8, 99, 0.15), 0 0 0 1px rgba(84, 8, 99, 0.05);
     animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 2;
 }
 
-.modal-content.modal-large { 
+.modal-content.modal-large {
     max-width: 95%;
+}
+
+/* Responsive modal adjustments */
+@media (max-width: 768px) {
+    .modal-content {
+        max-width: 95vw;
+        max-height: 95vh;
+        padding: 20px;
+    }
 }
 
 @keyframes slideUp {
@@ -1339,9 +1373,10 @@ small {
     animation: spin 1s linear infinite; 
 }
 
-/* Event Details */
-.event-details { 
-    padding: 0; 
+/* Event and Notice Details */
+.event-details,
+.notice-details {
+    padding: 0;
     width: 100%;
     box-sizing: border-box;
 }
@@ -1384,10 +1419,10 @@ small {
     display: inline-block;
 }
 
-.event-meta { 
-    padding: 16px 20px; 
+.event-meta {
+    padding: 16px 20px;
     background: linear-gradient(135deg, #f0fdf4 0%, #e8f8f0 100%);
-    border-radius: 8px; 
+    border-radius: 8px;
     margin: 20px 0;
     border: 1.5px solid #66bb6a;
 }
@@ -1402,6 +1437,19 @@ small {
 .event-meta strong {
     color: #1b5e20;
     font-weight: 700;
+}
+
+/* Notice Details */
+.notice-details .notice-tag {
+    display: inline-block;
+    background: linear-gradient(135deg, #ede7f6 0%, #f3e5f5 100%);
+    color: #540863;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    border: 1px solid rgba(84, 8, 99, 0.2);
 }
 
 /* Updates Section */
@@ -1719,22 +1767,20 @@ small {
     box-shadow: 0 4px 12px rgba(243, 113, 33, 0.3);
 }
 
-@media (max-width: 768px) {
-    .discussions-list {
-        grid-template-columns: 1fr;
-    }
-    
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-    
-    .card-actions {
-        flex-direction: column;
-    }
-    
-    .card-actions .btn {
-        width: 100%;
-    }
+.event-title-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+.event-creator-meta {
+    font-size: 12px;
+    color: #888;
+    font-weight: 500;
+    margin-top: 2px;
+    word-break: break-word;
 }
 
 /* Status Badges */
