@@ -5,19 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Swe_Society - Society</title>
     <link rel="stylesheet" href="typography.css" />
+    <link rel="stylesheet" href="navbar.css" />
     <link rel="stylesheet" href="society.css" />
     <link rel="stylesheet" href="approval.css" /></head>
 <body>
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-left">
-                <a href="home.html" class="logo-link"><img src="file.svg" alt="Swe_Society Logo" class="logo-svg"></a>
+                <a href="home.html" class="logo-link">
+                    <img src="file.svg" alt="Swe_Society Logo" class="logo-svg">
+                </a>
             </div>
+            <!-- Search Bar (empty for consistency) -->
+            <div class="nav-center"></div>
+
+            <!-- User Actions -->
             <div class="nav-right">
-                <a href="home.html" class="btn btn-secondary">Home</a>
+                <a href="society.html" class="btn btn-primary">Society</a>
                 <a href="election.html" class="btn btn-secondary">Elections</a>
                 <a href="message.html" class="btn btn-secondary">Messages</a>
-                
+
                 <!-- Create Dropdown -->
                 <div class="create-menu" id="createMenu">
                     <button class="btn btn-primary create-btn" id="createDropdownBtn" style="display:none;">

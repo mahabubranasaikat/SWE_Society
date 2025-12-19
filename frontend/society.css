@@ -1,6 +1,5 @@
 /* Error state button spacing */
 .empty-state button { margin-top: 8px; }
-* { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
     --primary-dark: #540863;
@@ -19,6 +18,14 @@
     --danger: #ef4444;
     --warning: #f59e0b;
 }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: white;
+    color: var(--text-primary);
+    overflow-x: hidden;
+}
+a { text-decoration: none; color: inherit; }
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
