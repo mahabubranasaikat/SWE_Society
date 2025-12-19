@@ -722,3 +722,39 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ==================== ALERT STYLES ==================== */
+.alert {
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.alert-error {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+}
+
+/* ==================== LOADING SPINNER ==================== */
+.spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spinner 0.6s linear infinite;
+}
+
+@keyframes spinner {
+    to { transform: rotate(360deg); }
+}
+
+/* Button states */
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

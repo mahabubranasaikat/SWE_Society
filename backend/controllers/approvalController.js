@@ -6,16 +6,82 @@ exports.createApprovalRequest = async (req, res) => {
         const { title, description, recipientIds, deadline } = req.body;
         const userId = req.user?.id;
 
-        // Validation
+        // Enhanced validation
         if (!userId) {
             return res.status(401).json({ success: false, message: 'User not authenticated' });
         }
 
-        if (!title || !recipientIds || !Array.isArray(recipientIds) || recipientIds.length === 0) {
+        // Validate title
+        if (!title || typeof title !== 'string' || title.trim().length === 0) {
             return res.status(400).json({ 
                 success: false, 
-                message: 'Title and at least one recipient are required' 
+                message: 'Valid title is required' 
             });
+        }
+
+        if (title.length > 255) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Title must be less than 255 characters' 
+            });
+        }
+
+        // Validate description length if provided
+        if (description && description.length > 2000) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Description must be less than 2000 characters' 
+            });
+        }
+
+        // Validate recipientIds
+        if (!recipientIds || !Array.isArray(recipientIds) || recipientIds.length === 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'At least one recipient is required' 
+            });
+        }
+
+        // Validate all recipient IDs are positive integers
+        const validRecipientIds = recipientIds.filter(id => 
+            Number.isInteger(id) && id > 0
+        );
+
+        if (validRecipientIds.length === 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Valid recipient IDs are required' 
+            });
+        }
+
+        // Remove duplicates
+        const uniqueRecipientIds = [...new Set(validRecipientIds)];
+
+        // Prevent user from adding themselves as recipient
+        const finalRecipientIds = uniqueRecipientIds.filter(id => id !== userId);
+
+        if (finalRecipientIds.length === 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Cannot create approval with only yourself as recipient' 
+            });
+        }
+
+        // Validate deadline if provided
+        if (deadline) {
+            const deadlineDate = new Date(deadline);
+            if (isNaN(deadlineDate.getTime())) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'Invalid deadline format' 
+                });
+            }
+            if (deadlineDate < new Date()) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'Deadline must be in the future' 
+                });
+            }
         }
 
         // Start transaction
@@ -23,17 +89,32 @@ exports.createApprovalRequest = async (req, res) => {
         await connection.beginTransaction();
 
         try {
-            // Create approval request
+            // Verify all recipients exist and are valid users
+            const [recipientCheck] = await connection.query(
+                `SELECT id FROM users WHERE id IN (?) AND is_approved = 1`,
+                [finalRecipientIds]
+            );
+
+            if (recipientCheck.length !== finalRecipientIds.length) {
+                await connection.rollback();
+                connection.release();
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'Some recipients are invalid or not approved users' 
+                });
+            }
+
+            // Create approval request with sanitized data
             const [result] = await connection.query(
                 `INSERT INTO approval_requests (title, description, created_by, deadline, status) 
                  VALUES (?, ?, ?, ?, 'active')`,
-                [title, description || null, userId, deadline || null]
+                [title.trim(), description ? description.trim() : null, userId, deadline || null]
             );
 
             const approvalRequestId = result.insertId;
 
             // Add recipients
-            for (const recipientId of recipientIds) {
+            for (const recipientId of finalRecipientIds) {
                 await connection.query(
                     `INSERT INTO approval_recipients (approval_request_id, user_id, status) 
                      VALUES (?, ?, 'pending')`,
@@ -45,7 +126,7 @@ exports.createApprovalRequest = async (req, res) => {
             await connection.query(
                 `INSERT INTO approval_history (approval_request_id, action_type, performed_by, notes) 
                  VALUES (?, 'created', ?, ?)`,
-                [approvalRequestId, userId, `Approval request created with ${recipientIds.length} recipient(s)`]
+                [approvalRequestId, userId, `Approval request created with ${finalRecipientIds.length} recipient(s)`]
             );
 
             await connection.commit();
@@ -66,7 +147,7 @@ exports.createApprovalRequest = async (req, res) => {
         res.status(500).json({ 
             success: false, 
             message: 'Error creating approval request', 
-            error: error.message 
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 };
@@ -387,17 +468,51 @@ exports.submitApprovalResponse = async (req, res) => {
         const { approvalStatus, notes } = req.body;
         const userId = req.user?.id;
 
-        if (!['approved', 'rejected'].includes(approvalStatus)) {
+        // Enhanced validation
+        if (!userId) {
+            return res.status(401).json({ success: false, message: 'User not authenticated' });
+        }
+
+        if (!approvalStatus || !['approved', 'rejected'].includes(approvalStatus)) {
             return res.status(400).json({ success: false, message: 'Invalid approval status' });
+        }
+
+        // Validate notes length if provided
+        if (notes && notes.length > 500) {
+            return res.status(400).json({ success: false, message: 'Notes must be less than 500 characters' });
         }
 
         const connection = await db.getConnection();
         await connection.beginTransaction();
 
         try {
+            // Check if approval request exists and is active
+            const [approvalRequests] = await connection.query(
+                `SELECT status FROM approval_requests WHERE id = ?`,
+                [id]
+            );
+
+            if (approvalRequests.length === 0) {
+                await connection.rollback();
+                connection.release();
+                return res.status(404).json({ 
+                    success: false, 
+                    message: 'Approval request not found' 
+                });
+            }
+
+            if (approvalRequests[0].status !== 'active') {
+                await connection.rollback();
+                connection.release();
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'This approval request is no longer active' 
+                });
+            }
+
             // Check if user is a recipient
             const [recipient] = await connection.query(
-                `SELECT id FROM approval_recipients 
+                `SELECT id, status FROM approval_recipients 
                  WHERE approval_request_id = ? AND user_id = ?`,
                 [id, userId]
             );
@@ -411,19 +526,29 @@ exports.submitApprovalResponse = async (req, res) => {
                 });
             }
 
+            // Check if already responded
+            if (recipient[0].status !== 'pending') {
+                await connection.rollback();
+                connection.release();
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'You have already responded to this approval request' 
+                });
+            }
+
             // Update recipient status
             await connection.query(
                 `UPDATE approval_recipients 
                  SET status = ?, response_at = CURRENT_TIMESTAMP, response_notes = ?
                  WHERE approval_request_id = ? AND user_id = ?`,
-                [approvalStatus, notes || null, id, userId]
+                [approvalStatus, notes ? notes.trim() : null, id, userId]
             );
 
             // Log action
             await connection.query(
                 `INSERT INTO approval_history (approval_request_id, recipient_user_id, action_type, performed_by, notes) 
                  VALUES (?, ?, ?, ?, ?)`,
-                [id, userId, approvalStatus, userId, notes || `${approvalStatus}`]
+                [id, userId, approvalStatus, userId, notes ? notes.trim() : `Responded: ${approvalStatus}`]
             );
 
             await connection.commit();
@@ -443,7 +568,7 @@ exports.submitApprovalResponse = async (req, res) => {
         res.status(500).json({ 
             success: false, 
             message: 'Error submitting approval response', 
-            error: error.message 
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 };

@@ -1,5 +1,8 @@
 // ==================== APPROVAL FEATURE ====================
 
+// Make sure approvalManager is globally accessible
+let approvalManager;
+
 class ApprovalManager {
     constructor(apiBase) {
         this.apiBase = apiBase;
@@ -10,26 +13,87 @@ class ApprovalManager {
 
     // Initialize
     async init() {
-        this.currentUser = JSON.parse(localStorage.getItem('Swe_Society_user'));
-        await this.loadApprovals();
-        this.setupEventListeners();
+        console.log('[ApprovalManager] Initializing...');
+        try {
+            this.currentUser = JSON.parse(localStorage.getItem('Swe_Society_user'));
+            console.log('[ApprovalManager] Current user:', this.currentUser);
+            
+            if (!this.currentUser) {
+                console.warn('[ApprovalManager] No user found in localStorage');
+            }
+            
+            this.setupEventListeners();
+            console.log('[ApprovalManager] Event listeners set up');
+            console.log('[ApprovalManager] Initialization complete. approvalManager is ready.');
+        } catch (error) {
+            console.error('[ApprovalManager] Initialization error:', error);
+            throw error;
+        }
+        // Don't auto-load - will be triggered when tab is activated
     }
 
     // Load all approvals
     async loadApprovals() {
+        const loadingEl = document.getElementById('approvalsLoading');
+        const listEl = document.getElementById('approvalsList');
+        
+        console.log('[ApprovalManager] loadApprovals called');
+        console.log('[ApprovalManager] Loading element:', loadingEl);
+        console.log('[ApprovalManager] List element:', listEl);
+        
         try {
-            const response = await fetch(`${this.apiBase}/approvals/list?status=all&filterType=all`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('Swe_Society_token')}` }
-            });
+            // Show loading state
+            if (loadingEl) loadingEl.style.display = 'block';
+            if (listEl) listEl.style.display = 'none';
+
+            if (!window.authManager) {
+                console.error('[ApprovalManager] Auth manager not available');
+                throw new Error('Authentication system not ready. Please refresh the page.');
+            }
+
+            console.log('[ApprovalManager] Fetching approvals from:', `${this.apiBase}/approvals/list?status=all&filterType=all`);
+            
+            const response = await window.authManager.authenticatedFetch(
+                `${this.apiBase}/approvals/list?status=all&filterType=all`
+            );
+            
+            console.log('[ApprovalManager] Response status:', response.status);
+            console.log('[ApprovalManager] Response OK:', response.ok);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('[ApprovalManager] Error response:', errorText);
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
             const result = await response.json();
+            console.log('[ApprovalManager] API result:', result);
             
             if (result.success) {
                 this.approvals = result.data;
+                console.log('[ApprovalManager] Loaded approvals:', this.approvals.length);
                 this.renderApprovalsList();
+            } else {
+                throw new Error(result.message || 'Failed to load approvals');
             }
         } catch (error) {
-            console.error('Error loading approvals:', error);
-            this.showError('Failed to load approvals');
+            console.error('[ApprovalManager] Error loading approvals:', error);
+            this.showError(error.message || 'Failed to load approvals');
+            
+            // Show error in list
+            if (listEl) {
+                listEl.innerHTML = `
+                    <div class="empty-state">
+                        <p style="color: #dc2626;">Failed to load approval requests</p>
+                        <p>${this.escapeHtml(error.message)}</p>
+                        <button class="btn btn-secondary" onclick="approvalManager.loadApprovals()">Retry</button>
+                    </div>
+                `;
+                listEl.style.display = 'block';
+            }
+        } finally {
+            // Hide loading state
+            if (loadingEl) loadingEl.style.display = 'none';
         }
     }
 
@@ -57,83 +121,110 @@ class ApprovalManager {
     // Render approvals list
     renderApprovalsList() {
         const container = document.getElementById('approvalsList');
-        if (!container) return;
-
-        if (this.approvals.length === 0) {
-            container.innerHTML = '<div class="empty-state">No approval requests found</div>';
+        console.log('[ApprovalManager] renderApprovalsList - container:', container);
+        console.log('[ApprovalManager] renderApprovalsList - approvals count:', this.approvals.length);
+        
+        if (!container) {
+            console.error('[ApprovalManager] approvalsList container not found!');
             return;
         }
 
-        container.innerHTML = this.approvals.map(approval => `
-            <div class="approval-card" data-id="${approval.id}">
-                <div class="approval-header">
-                    <div class="approval-title">
-                        <h3>${this.escapeHtml(approval.title)}</h3>
-                        <span class="status-badge status-${approval.status}">${approval.status}</span>
+        if (this.approvals.length === 0) {
+            container.innerHTML = '<div class="empty-state">No approval requests found</div>';
+            container.style.display = 'block';
+            return;
+        }
+
+        try {
+            container.innerHTML = this.approvals.map(approval => `
+                <div class="approval-card" data-id="${approval.id}">
+                    <div class="approval-header">
+                        <div class="approval-title">
+                            <h3>${this.escapeHtml(approval.title)}</h3>
+                            <span class="status-badge status-${approval.status}">${approval.status}</span>
+                        </div>
+                        <div class="approval-deadline">
+                            ${approval.deadline ? `<span class="deadline">Due: ${new Date(approval.deadline).toLocaleDateString()}</span>` : ''}
+                        </div>
                     </div>
-                    <div class="approval-deadline">
-                        ${approval.deadline ? `<span class="deadline">Due: ${new Date(approval.deadline).toLocaleDateString()}</span>` : ''}
+
+                    <div class="approval-description">
+                        <p>${this.escapeHtml(approval.description || 'No description')}</p>
+                    </div>
+
+                    <div class="approval-creator">
+                        <small>Created by <strong>${this.escapeHtml(approval.creator_name)}</strong></small>
+                    </div>
+
+                    <div class="approval-stats">
+                        <div class="stat">
+                            <span class="stat-label">Total Recipients:</span>
+                            <span class="stat-value">${approval.recipients.total}</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">✓ Approved:</span>
+                            <span class="stat-value approved">${approval.recipients.approved}</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">✗ Rejected:</span>
+                            <span class="stat-value rejected">${approval.recipients.rejected}</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">⏳ Pending:</span>
+                            <span class="stat-value pending">${approval.recipients.pending}</span>
+                        </div>
+                    </div>
+
+                    <div class="approval-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${(approval.recipients.approved / approval.recipients.total * 100) || 0}%"></div>
+                        </div>
+                        <small>${approval.recipients.total > 0 ? Math.round((approval.recipients.approved / approval.recipients.total) * 100) : 0}% Approved</small>
+                    </div>
+
+                    <div class="approval-actions">
+                        <button class="btn-small btn-view" onclick="approvalManager.showDetails(${approval.id})">View Details</button>
+                        ${this.currentUser && this.currentUser.id === approval.creator_id ? `
+                            <button class="btn-small btn-edit" onclick="approvalManager.showEditModal(${approval.id})">Edit</button>
+                            <button class="btn-small btn-delete" onclick="approvalManager.deleteApproval(${approval.id})">Delete</button>
+                            ${approval.status === 'active' ? `<button class="btn-small btn-complete" onclick="approvalManager.completeApproval(${approval.id})">Mark Complete</button>` : ''}
+                        ` : ''}
                     </div>
                 </div>
+            `).join('');
+            
+            container.style.display = 'block';
 
-                <div class="approval-description">
-                    <p>${this.escapeHtml(approval.description || 'No description')}</p>
-                </div>
-
-                <div class="approval-creator">
-                    <small>Created by <strong>${this.escapeHtml(approval.creator_name)}</strong></small>
-                </div>
-
-                <div class="approval-stats">
-                    <div class="stat">
-                        <span class="stat-label">Total Recipients:</span>
-                        <span class="stat-value">${approval.recipients.total}</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">✓ Approved:</span>
-                        <span class="stat-value approved">${approval.recipients.approved}</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">✗ Rejected:</span>
-                        <span class="stat-value rejected">${approval.recipients.rejected}</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">⏳ Pending:</span>
-                        <span class="stat-value pending">${approval.recipients.pending}</span>
-                    </div>
-                </div>
-
-                <div class="approval-progress">
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${(approval.recipients.approved / approval.recipients.total * 100) || 0}%"></div>
-                    </div>
-                    <small>${approval.recipients.total > 0 ? Math.round((approval.recipients.approved / approval.recipients.total) * 100) : 0}% Approved</small>
-                </div>
-
-                <div class="approval-actions">
-                    <button class="btn-small btn-view" onclick="approvalManager.showDetails(${approval.id})">View Details</button>
-                    ${this.currentUser && this.currentUser.id === approval.creator_id ? `
-                        <button class="btn-small btn-edit" onclick="approvalManager.showEditModal(${approval.id})">Edit</button>
-                        <button class="btn-small btn-delete" onclick="approvalManager.deleteApproval(${approval.id})">Delete</button>
-                        ${approval.status === 'active' ? `<button class="btn-small btn-complete" onclick="approvalManager.completeApproval(${approval.id})">Mark Complete</button>` : ''}
-                    ` : ''}
-                </div>
-            </div>
-        `).join('');
-
-        // Update count
-        const countElement = document.getElementById('approvalsCount');
-        if (countElement) {
-            countElement.textContent = this.approvals.length;
+            // Update count
+            const countElement = document.getElementById('approvalsCount');
+            if (countElement) {
+                countElement.textContent = this.approvals.length;
+            }
+            
+            console.log('[ApprovalManager] Rendered', this.approvals.length, 'approval cards');
+        } catch (error) {
+            console.error('[ApprovalManager] Error rendering approvals:', error);
+            container.innerHTML = `<div class="empty-state" style="color: #dc2626;">Error rendering approvals: ${this.escapeHtml(error.message)}</div>`;
+            container.style.display = 'block';
         }
     }
 
     // Show approval details modal
     async showDetails(id) {
         try {
-            const response = await fetch(`${this.apiBase}/approvals/${id}`, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('Swe_Society_token')}` }
-            });
+            if (!window.authManager) {
+                this.showError('Authentication system not ready');
+                return;
+            }
+
+            const response = await window.authManager.authenticatedFetch(
+                `${this.apiBase}/approvals/${id}`
+            );
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
             const result = await response.json();
 
             if (result.success) {
@@ -257,30 +348,40 @@ class ApprovalManager {
                 </div>
 
                 <div class="modal-body">
+                    <div id="createApprovalError" class="alert alert-error" style="display: none;"></div>
                     <form id="createApprovalForm">
                         <div class="form-group">
                             <label for="approvalTitle">Title *</label>
-                            <input type="text" id="approvalTitle" required placeholder="Enter approval request title">
+                            <input type="text" id="approvalTitle" required maxlength="255" placeholder="Enter approval request title">
+                            <small style="color: #6b7280;">Max 255 characters</small>
                         </div>
 
                         <div class="form-group">
                             <label for="approvalDescription">Description</label>
-                            <textarea id="approvalDescription" placeholder="Enter approval request description"></textarea>
+                            <textarea id="approvalDescription" rows="4" maxlength="2000" placeholder="Enter approval request description"></textarea>
+                            <small style="color: #6b7280;">Optional, max 2000 characters</small>
                         </div>
 
                         <div class="form-group">
                             <label for="approvalDeadline">Deadline</label>
                             <input type="datetime-local" id="approvalDeadline">
+                            <small style="color: #6b7280;">Optional</small>
                         </div>
 
                         <div class="form-group">
                             <label for="recipientSelect">Select Recipients * (Hold Ctrl/Cmd for multiple)</label>
-                            <select id="recipientSelect" multiple required size="8"></select>
+                            <div id="recipientLoadingState" style="padding: 20px; text-align: center; color: #6b7280;">
+                                Loading users...
+                            </div>
+                            <select id="recipientSelect" multiple required size="8" style="display: none;"></select>
                             <small>Selected: <span id="selectedCount">0</span> users</small>
                         </div>
 
                         <div class="button-group">
-                            <button type="submit" class="btn btn-primary">Create Request</button>
+                            <button type="submit" class="btn btn-primary" id="createApprovalSubmitBtn">
+                                <span class="btn-text">Create Request</span>
+                                <span class="spinner" style="display: none;"></span>
+                            </button>
                             <button type="button" class="btn btn-secondary" onclick="this.closest('.modal-content').parentElement.style.display='none'">Cancel</button>
                         </div>
                     </form>
@@ -291,40 +392,45 @@ class ApprovalManager {
         // Load users for recipient selection
         this.loadUsersForSelection();
 
-        document.getElementById('recipientSelect').addEventListener('change', () => {
-            document.getElementById('selectedCount').textContent = 
-                document.getElementById('recipientSelect').selectedOptions.length;
-        });
+        const recipientSelect = document.getElementById('recipientSelect');
+        if (recipientSelect) {
+            recipientSelect.addEventListener('change', () => {
+                const selectedCount = document.getElementById('selectedCount');
+                if (selectedCount) {
+                    selectedCount.textContent = recipientSelect.selectedOptions.length;
+                }
+            });
+        }
 
-        document.getElementById('createApprovalForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.createApproval();
-        });
+        const form = document.getElementById('createApprovalForm');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.createApproval();
+            });
+        }
 
         modal.style.display = 'block';
     }
 
     // Load users for recipient selection
     async loadUsersForSelection() {
+        const loadingState = document.getElementById('recipientLoadingState');
+        const select = document.getElementById('recipientSelect');
+        
         try {
             // Ensure currentUser is loaded
             if (!this.currentUser) {
                 this.currentUser = JSON.parse(localStorage.getItem('Swe_Society_user'));
             }
 
-            const token = localStorage.getItem('Swe_Society_token');
-            if (!token) {
-                this.showError('Authentication required');
-                return;
+            if (!window.authManager) {
+                throw new Error('Authentication system not ready');
             }
 
-            const response = await fetch(`${this.apiBase}/profile/users/all`, {
-                method: 'GET',
-                headers: { 
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+            const response = await window.authManager.authenticatedFetch(
+                `${this.apiBase}/profile/users/all`
+            );
 
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -333,62 +439,123 @@ class ApprovalManager {
             const result = await response.json();
 
             if (result.success && result.data) {
-                const select = document.getElementById('recipientSelect');
                 if (!select) {
                     console.error('recipient select element not found');
                     return;
                 }
                 
                 const currentUserId = this.currentUser?.id;
-                select.innerHTML = result.data
-                    .filter(u => u.id !== currentUserId) // Exclude current user
-                    .map(u => `<option value="${u.id}">${u.name} (${u.username})</option>`)
-                    .join('');
+                const users = result.data.filter(u => u.id !== currentUserId);
                 
-                if (select.options.length === 0) {
+                if (users.length === 0) {
                     select.innerHTML = '<option disabled>No other users available</option>';
+                } else {
+                    select.innerHTML = users
+                        .map(u => `<option value="${u.id}">${this.escapeHtml(u.name)} (@${this.escapeHtml(u.username)})</option>`)
+                        .join('');
                 }
+                
+                // Show select, hide loading
+                if (loadingState) loadingState.style.display = 'none';
+                select.style.display = 'block';
             } else {
-                console.error('API Error loading users:', result.message);
-                this.showError(result.message || 'Failed to load users for recipient selection');
+                throw new Error(result.message || 'Failed to load users');
             }
         } catch (error) {
-            console.error('Fetch Error loading users:', error);
-            this.showError(`Error loading users: ${error.message}`);
+            console.error('Error loading users:', error);
+            
+            // Show error in the modal
+            if (loadingState) {
+                loadingState.innerHTML = `
+                    <p style="color: #dc2626;">Failed to load users</p>
+                    <button class="btn btn-secondary btn-sm" onclick="approvalManager.loadUsersForSelection()">Retry</button>
+                `;
+            }
+            
+            this.showModalError(error.message || 'Failed to load users for recipient selection');
         }
     }
 
     // Create approval
     async createApproval() {
+        const submitBtn = document.getElementById('createApprovalSubmitBtn');
+        const btnText = submitBtn?.querySelector('.btn-text');
+        const spinner = submitBtn?.querySelector('.spinner');
+        
         try {
-            const title = document.getElementById('approvalTitle').value;
-            const description = document.getElementById('approvalDescription').value;
-            const deadline = document.getElementById('approvalDeadline').value;
-            const recipientIds = Array.from(document.getElementById('recipientSelect').selectedOptions)
-                .map(option => parseInt(option.value));
+            // Show loading state
+            if (submitBtn) submitBtn.disabled = true;
+            if (btnText) btnText.style.display = 'none';
+            if (spinner) spinner.style.display = 'inline-block';
+            
+            // Clear previous errors
+            this.hideModalError();
 
-            if (!title || recipientIds.length === 0) {
-                this.showError('Title and at least one recipient are required');
-                return;
+            const title = document.getElementById('approvalTitle')?.value?.trim();
+            const description = document.getElementById('approvalDescription')?.value?.trim();
+            const deadline = document.getElementById('approvalDeadline')?.value;
+            const recipientSelect = document.getElementById('recipientSelect');
+            
+            // Input validation
+            if (!title) {
+                throw new Error('Title is required');
             }
 
-            const token = localStorage.getItem('Swe_Society_token');
-            console.log('Token available:', !!token);
-            console.log('Token:', token ? token.substring(0, 20) + '...' : 'NO TOKEN');
+            if (title.length > 255) {
+                throw new Error('Title is too long (max 255 characters)');
+            }
 
-            const response = await fetch(`${this.apiBase}/approvals/create`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    title,
-                    description: description || null,
-                    deadline: deadline || null,
-                    recipientIds
-                })
-            });
+            if (description && description.length > 2000) {
+                throw new Error('Description is too long (max 2000 characters)');
+            }
+
+            if (!recipientSelect || recipientSelect.selectedOptions.length === 0) {
+                throw new Error('At least one recipient is required');
+            }
+
+            const recipientIds = Array.from(recipientSelect.selectedOptions)
+                .map(option => parseInt(option.value))
+                .filter(id => !isNaN(id) && id > 0);
+
+            if (recipientIds.length === 0) {
+                throw new Error('Please select valid recipients');
+            }
+
+            // Validate deadline if provided
+            if (deadline) {
+                const deadlineDate = new Date(deadline);
+                if (isNaN(deadlineDate.getTime())) {
+                    throw new Error('Invalid deadline format');
+                }
+                if (deadlineDate < new Date()) {
+                    throw new Error('Deadline must be in the future');
+                }
+            }
+
+            if (!window.authManager) {
+                throw new Error('Authentication system not ready');
+            }
+
+            // Prepare request body
+            const requestBody = {
+                title,
+                description: description || null,
+                deadline: deadline || null,
+                recipientIds
+            };
+
+            const response = await window.authManager.authenticatedFetch(
+                `${this.apiBase}/approvals/create`,
+                {
+                    method: 'POST',
+                    body: JSON.stringify(requestBody)
+                }
+            );
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+            }
 
             const result = await response.json();
 
@@ -397,30 +564,55 @@ class ApprovalManager {
                 document.getElementById('createApprovalModal').style.display = 'none';
                 await this.loadApprovals();
             } else {
-                this.showError(result.message || 'Failed to create approval request');
+                throw new Error(result.message || 'Failed to create approval request');
             }
         } catch (error) {
             console.error('Error creating approval:', error);
-            this.showError('Failed to create approval request');
+            this.showModalError(error.message || 'Failed to create approval request');
+        } finally {
+            // Reset button state
+            if (submitBtn) submitBtn.disabled = false;
+            if (btnText) btnText.style.display = 'inline';
+            if (spinner) spinner.style.display = 'none';
         }
     }
 
     // Submit response
     async submitResponse(id, status) {
         try {
-            const notes = document.getElementById('responseNotes')?.value || '';
+            // Validate inputs
+            if (!id || !status) {
+                this.showError('Invalid request parameters');
+                return;
+            }
 
-            const response = await fetch(`${this.apiBase}/approvals/${id}/respond`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('Swe_Society_token')}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    approvalStatus: status,
-                    notes: notes || null
-                })
-            });
+            if (!['approved', 'rejected'].includes(status)) {
+                this.showError('Invalid status');
+                return;
+            }
+
+            if (!window.authManager) {
+                this.showError('Authentication system not ready');
+                return;
+            }
+
+            const notes = document.getElementById('responseNotes')?.value?.trim() || '';
+
+            const response = await window.authManager.authenticatedFetch(
+                `${this.apiBase}/approvals/${id}/respond`,
+                {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        approvalStatus: status,
+                        notes: notes || null
+                    })
+                }
+            );
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `HTTP ${response.status}`);
+            }
 
             const result = await response.json();
 
@@ -429,7 +621,7 @@ class ApprovalManager {
                 document.getElementById('approvalDetailsModal').style.display = 'none';
                 await this.loadApprovals();
             } else {
-                this.showError(result.message || 'Failed to submit response');
+                throw new Error(result.message || 'Failed to submit response');
             }
         } catch (error) {
             console.error('Error submitting response:', error);
@@ -442,10 +634,25 @@ class ApprovalManager {
         if (!confirm('Are you sure you want to delete this approval request?')) return;
 
         try {
-            const response = await fetch(`${this.apiBase}/approvals/${id}/delete`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('Swe_Society_token')}` }
-            });
+            if (!id) {
+                this.showError('Invalid approval ID');
+                return;
+            }
+
+            if (!window.authManager) {
+                this.showError('Authentication system not ready');
+                return;
+            }
+
+            const response = await window.authManager.authenticatedFetch(
+                `${this.apiBase}/approvals/${id}/delete`,
+                { method: 'DELETE' }
+            );
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `HTTP ${response.status}`);
+            }
 
             const result = await response.json();
 
@@ -453,7 +660,7 @@ class ApprovalManager {
                 this.showSuccess('Approval request deleted successfully');
                 await this.loadApprovals();
             } else {
-                this.showError(result.message || 'Failed to delete approval request');
+                throw new Error(result.message || 'Failed to delete approval request');
             }
         } catch (error) {
             console.error('Error deleting approval:', error);
@@ -466,10 +673,25 @@ class ApprovalManager {
         if (!confirm('Mark this approval request as completed?')) return;
 
         try {
-            const response = await fetch(`${this.apiBase}/approvals/${id}/complete`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('Swe_Society_token')}` }
-            });
+            if (!id) {
+                this.showError('Invalid approval ID');
+                return;
+            }
+
+            if (!window.authManager) {
+                this.showError('Authentication system not ready');
+                return;
+            }
+
+            const response = await window.authManager.authenticatedFetch(
+                `${this.apiBase}/approvals/${id}/complete`,
+                { method: 'POST' }
+            );
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `HTTP ${response.status}`);
+            }
 
             const result = await response.json();
 
@@ -477,7 +699,7 @@ class ApprovalManager {
                 this.showSuccess('Approval request completed successfully');
                 await this.loadApprovals();
             } else {
-                this.showError(result.message || 'Failed to complete approval request');
+                throw new Error(result.message || 'Failed to complete approval request');
             }
         } catch (error) {
             console.error('Error completing approval:', error);
@@ -510,12 +732,16 @@ class ApprovalManager {
 
     // Close all modals
     closeAllModals() {
-        document.getElementById('createApprovalModal').style.display = 'none';
-        document.getElementById('approvalDetailsModal').style.display = 'none';
+        const createModal = document.getElementById('createApprovalModal');
+        const detailsModal = document.getElementById('approvalDetailsModal');
+        
+        if (createModal) createModal.style.display = 'none';
+        if (detailsModal) detailsModal.style.display = 'none';
     }
 
     // Utilities
     escapeHtml(text) {
+        if (!text) return '';
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
@@ -528,7 +754,20 @@ class ApprovalManager {
     showSuccess(message) {
         alert(`✓ ${message}`);
     }
-}
 
-// Initialize globally
-let approvalManager;
+    showModalError(message) {
+        const errorEl = document.getElementById('createApprovalError');
+        if (errorEl) {
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+        }
+    }
+
+    hideModalError() {
+        const errorEl = document.getElementById('createApprovalError');
+        if (errorEl) {
+            errorEl.style.display = 'none';
+            errorEl.textContent = '';
+        }
+    }
+}
