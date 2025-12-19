@@ -4,7 +4,7 @@ const db = require('../config/db');
 exports.createApprovalRequest = async (req, res) => {
     try {
         const { title, description, recipientIds, deadline } = req.body;
-        const userId = req.user?.id;
+        const userId = req.user?.userId;
 
         // Enhanced validation
         if (!userId) {
@@ -91,16 +91,16 @@ exports.createApprovalRequest = async (req, res) => {
         try {
             // Verify all recipients exist and are valid users
             const [recipientCheck] = await connection.query(
-                `SELECT id FROM users WHERE id IN (?) AND is_approved = 1`,
+                `SELECT id FROM users WHERE id IN (?)`,
                 [finalRecipientIds]
             );
 
             if (recipientCheck.length !== finalRecipientIds.length) {
                 await connection.rollback();
                 connection.release();
-                return res.status(400).json({ 
-                    success: false, 
-                    message: 'Some recipients are invalid or not approved users' 
+                return res.status(400).json({
+                    success: false,
+                    message: 'Some recipients are invalid users'
                 });
             }
 
@@ -156,7 +156,7 @@ exports.createApprovalRequest = async (req, res) => {
 exports.getAllApprovalRequests = async (req, res) => {
     try {
         const { page = 1, limit = 10, status = 'active', filterType = 'all' } = req.query;
-        const userId = req.user?.id;
+        const userId = req.user?.userId;
 
         const safeLimit = Math.min(parseInt(limit) || 10, 50);
         const offset = (parseInt(page) - 1) * safeLimit;
@@ -333,7 +333,7 @@ exports.updateApprovalRequest = async (req, res) => {
     try {
         const { id } = req.params;
         const { title, description, deadline, recipientIds } = req.body;
-        const userId = req.user?.id;
+        const userId = req.user?.userId;
 
         // Verify ownership
         const [requests] = await db.query(
@@ -412,7 +412,7 @@ exports.updateApprovalRequest = async (req, res) => {
 exports.deleteApprovalRequest = async (req, res) => {
     try {
         const { id } = req.params;
-        const userId = req.user?.id;
+        const userId = req.user?.userId;
 
         // Verify ownership
         const [requests] = await db.query(
@@ -466,7 +466,7 @@ exports.submitApprovalResponse = async (req, res) => {
     try {
         const { id } = req.params;
         const { approvalStatus, notes } = req.body;
-        const userId = req.user?.id;
+        const userId = req.user?.userId;
 
         // Enhanced validation
         if (!userId) {
@@ -577,7 +577,7 @@ exports.submitApprovalResponse = async (req, res) => {
 exports.completeApprovalRequest = async (req, res) => {
     try {
         const { id } = req.params;
-        const userId = req.user?.id;
+        const userId = req.user?.userId;
 
         // Verify ownership
         const [requests] = await db.query(
@@ -638,7 +638,7 @@ exports.completeApprovalRequest = async (req, res) => {
 exports.cancelApprovalRequest = async (req, res) => {
     try {
         const { id } = req.params;
-        const userId = req.user?.id;
+        const userId = req.user?.userId;
 
         // Verify ownership
         const [requests] = await db.query(
@@ -698,7 +698,7 @@ exports.cancelApprovalRequest = async (req, res) => {
 // ==================== GET USER'S PENDING APPROVALS ====================
 exports.getPendingApprovalsForUser = async (req, res) => {
     try {
-        const userId = req.user?.id;
+        const userId = req.user?.userId;
 
         const [rows] = await db.query(
             `SELECT ar.id, ar.title, ar.description, ar.deadline, ar.created_at,
