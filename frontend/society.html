@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Swe_Society - Society</title>
+    <link rel="stylesheet" href="typography.css" />
+    <link rel="stylesheet" href="society.css" />
+    <link rel="stylesheet" href="approval.css" /></head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="home.html" class="logo-link"><img src="file.svg" alt="Swe_Society Logo" class="logo-svg"></a>
+            </div>
+            <div class="nav-right">
+                <a href="home.html" class="btn btn-secondary">Home</a>
+                <a href="election.html" class="btn btn-secondary">Elections</a>
+                <a href="message.html" class="btn btn-secondary">Messages</a>
+                
+                <!-- Create Dropdown -->
+                <div class="create-menu" id="createMenu">
+                    <button class="btn btn-primary create-btn" id="createDropdownBtn" style="display:none;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Create
+                        <svg class="dropdown-arrow-create" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                    <div class="create-dropdown" id="createDropdown">
+                        <button class="create-dropdown-item" id="createNoticeOption">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                            </svg>
+                            <span>Create Notice</span>
+                        </button>
+                        <button class="create-dropdown-item" id="createEventOption">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            <span>Create Event</span>
+                        </button>
+                        <button class="create-dropdown-item" id="createRegistrationOption">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            <span>Create Registration</span>
+                        </button>
+                        <button class="create-dropdown-item" id="createFeeOption">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="1" x2="12" y2="23"></line>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            </svg>
+                            <span>Create Fee</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Notifications Dropdown -->
+                <div class="notifications-menu">
+                    <button class="notifications-btn" id="notificationsBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                    </button>
+                    <div class="notifications-dropdown" id="notificationsDropdown">
+                        <div class="notifications-header">
+                            <h3>Notifications</h3>
+                            <button class="mark-all-read" id="markAllRead">Mark all read</button>
+                        </div>
+                        <div class="notifications-loading" id="notificationsLoading">
+                            <div class="loading-spinner"></div>
+                            <span>Loading...</span>
+                        </div>
+                        <div class="notifications-list" id="notificationsList"></div>
+                        <div class="notifications-empty" id="notificationsEmpty" style="display: none;">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                            </svg>
+                            <p>No notifications yet</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Profile Dropdown -->
+                <div class="user-menu">
+                    <button class="user-menu-btn" id="userMenuBtn">
+                        <div class="user-avatar" id="userAvatar">U</div>
+                        <div class="user-info">
+                            <span class="user-name" id="userName">Loading...</span>
+                            <span class="user-username" id="userUsername">@username</span>
+                        </div>
+                        <svg class="dropdown-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                    <div class="dropdown-menu" id="dropdownMenu">
+                        <a href="view-profile.html" class="dropdown-item">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            <span>View Profile</span>
+                        </a>
+                        <a href="edit-profile.html" class="dropdown-item">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            <span>Edit Profile</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <button class="dropdown-item logout-btn" id="logoutBtn">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                            <span>Logout</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h2>Society Hub</h2>
+                <p class="subtitle">Stay updated with notices and events from Swe_Society</p>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tab-navigation">
+                <button class="tab-btn active" data-tab="notices">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                    Notices
+                    <span class="tab-count" id="noticesCount">0</span>
+                </button>
+                <button class="tab-btn" data-tab="events">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    Events
+                    <span class="tab-count" id="eventsCount">0</span>
+                </button>
+                <button class="tab-btn" data-tab="discussions" id="discussionsTab">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    Discussions
+                    <span class="tab-count" id="discussionsCount">0</span>
+                </button>
+                <button class="tab-btn" data-tab="registrations">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                    Registrations
+                </button>
+                <button class="tab-btn" data-tab="fees">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                    Fees
+                </button>
+                <button class="tab-btn" data-tab="approvals">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 20h10"></path>
+                        <polyline points="9 11 12 14 15 11"></polyline>
+                    </svg>
+                    Approvals
+                    <span class="tab-count" id="approvalsCount">0</span>
+                </button>
+            </div>
+
+            <!-- Notices Tab Content -->
+            <div class="tab-content active" id="notices-tab">
+                <div id="noticesLoading" class="loading-state">
+                    <div class="loader"></div>
+                    <p>Loading notices...</p>
+                </div>
+
+                <!-- Notices Error State -->
+                <div id="noticesError" class="empty-state" style="display:none;">
+                    <div class="empty-icon">⚠️</div>
+                    <h3>Couldn't load notices</h3>
+                    <p id="noticesErrorMsg">Please try again.</p>
+                    <button class="btn btn-secondary" id="retryNoticesBtn">Retry</button>
+                </div>
+
+                <div id="noticesEmpty" class="empty-state" style="display:none;">
+                    <div class="empty-icon">📢</div>
+                    <h3>No notices yet</h3>
+                    <p>Society members can create the first notice.</p>
+                </div>
+
+                <div id="noticesList" class="notices-list" style="display:none;"></div>
+            </div>
+
+            <!-- Events Tab Content -->
+            <div class="tab-content" id="events-tab">
+                <div id="eventsLoading" class="loading-state">
+                    <div class="loader"></div>
+                    <p>Loading events...</p>
+                </div>
+
+                <!-- Events Error State -->
+                <div id="eventsError" class="empty-state" style="display:none;">
+                    <div class="empty-icon">⚠️</div>
+                    <h3>Couldn't load events</h3>
+                    <p id="eventsErrorMsg">Please try again.</p>
+                    <button class="btn btn-secondary" id="retryEventsBtn">Retry</button>
+                </div>
+
+                <div id="eventsEmpty" class="empty-state" style="display:none;">
+                    <div class="empty-icon">🎉</div>
+                    <h3>No events yet</h3>
+                    <p>Society members can create the first event.</p>
+                </div>
+
+                <div id="eventsList" class="events-list" style="display:none;"></div>
+            </div>
+
+            <!-- Discussions Tab Content -->
+            <div class="tab-content" id="discussions-tab">
+                <div class="discussions-header">
+                    <button class="btn btn-primary" id="createDiscussionBtn" style="display:none;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Create Discussion
+                    </button>
+                </div>
+
+                <div id="discussionsLoading" class="loading-state">
+                    <div class="loader"></div>
+                    <p>Loading discussions...</p>
+                </div>
+
+                <!-- Discussions Error State -->
+                <div id="discussionsError" class="empty-state" style="display:none;">
+                    <div class="empty-icon">⚠️</div>
+                    <h3>Couldn't load discussions</h3>
+                    <p id="discussionsErrorMsg">Please try again.</p>
+                    <button class="btn btn-secondary" id="retryDiscussionsBtn">Retry</button>
+                </div>
+
+                <div id="discussionsEmpty" class="empty-state" style="display:none;">
+                    <div class="empty-icon">💬</div>
+                    <h3>No discussions yet</h3>
+                    <p>Committee members can create discussions.</p>
+                </div>
+
+                <div id="discussionsList" class="discussions-list" style="display:none;"></div>
+            </div>
+
+            <!-- Registrations Tab Content -->
+            <div class="tab-content" id="registrations-tab">
+                <div id="registrationsLoading" class="loading-state">
+                    <div class="loader"></div>
+                    <p>Loading registrations...</p>
+                </div>
+                <div id="registrationsList" class="registrations-list" style="display:none;"></div>
+            </div>
+
+            <!-- Fees Tab Content -->
+            <div class="tab-content" id="fees-tab">
+                <div id="feesLoading" class="loading-state">
+                    <div class="loader"></div>
+                    <p>Loading fees...</p>
+                </div>
+                <div id="feesList" class="fees-list" style="display:none;"></div>
+            </div>
+
+            <!-- Approvals Tab Content -->
+            <div class="tab-content" id="approvals-tab">
+                <div class="approvals-container">
+                    <div class="approvals-header">
+                        <div class="approvals-title">
+                            <h3>Approval Requests</h3>
+                            <span class="approvals-count" id="approvalsCount">0</span>
+                        </div>
+                        <div class="approvals-controls">
+                            <button class="btn btn-primary" id="createApprovalBtn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                Create Approval Request
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="approvalsLoading" class="loading-state">
+                        <div class="loader"></div>
+                        <p>Loading approval requests...</p>
+                    </div>
+
+                    <div id="approvalsList" class="approval-cards-list"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Approval Modals -->
+    <div class="approval-modal" id="createApprovalModal"></div>
+    <div class="approval-modal" id="approvalDetailsModal"></div>
+
+    <!-- Create Notice Modal -->
+    <div class="modal" id="createNoticeModal" style="display:none;">
+        <div class="modal-overlay" id="noticeModalOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create Society Notice</h3>
+                <button class="modal-close" id="noticeModalClose">×</button>
+            </div>
+            <form id="createNoticeForm" class="form">
+                <div class="form-group">
+                    <label for="noticeTitle">Notice Title <span class="required">*</span></label>
+                    <input type="text" id="noticeTitle" name="title" required placeholder="Enter notice title" />
+                    <span class="error-message" id="title-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="noticeTag">Tag <span class="required">*</span></label>
+                    <select id="noticeTag" name="tag" required>
+                        <option value="notice">Notice</option>
+                        <option value="announcement">Announcement</option>
+                        <option value="reminder">Reminder</option>
+                        <option value="meeting_note">Meeting Note</option>
+                        <option value="event_update">Event Update</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="noticeDescription">Description</label>
+                    <textarea id="noticeDescription" name="description" rows="5" placeholder="Write the full notice (optional)..."></textarea>
+                </div>
+                <div id="noticeAlert" class="alert" style="display:none;"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelNoticeBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submitNoticeBtn">
+                        <span class="btn-text">Publish Notice</span>
+                        <span class="spinner" style="display:none;"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Event Modal -->
+    <div class="modal" id="createEventModal" style="display:none;">
+        <div class="modal-overlay" id="eventModalOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create Society Event</h3>
+                <button class="modal-close" id="eventModalClose">×</button>
+            </div>
+            <form id="createEventForm" class="form">
+                <div class="form-group">
+                    <label for="eventTitle">Event Title <span class="required">*</span></label>
+                    <input type="text" id="eventTitle" name="title" required placeholder="Enter event title" />
+                </div>
+                <div class="form-group">
+                    <label for="eventType">Event Type <span class="required">*</span></label>
+                    <select id="eventType" name="event_type" required>
+                        <option value="other">Other</option>
+                        <option value="sports_event">Sports Event</option>
+                        <option value="sports_week">Sports Week</option>
+                        <option value="freshers_reception">Freshers Reception</option>
+                        <option value="rag_day">Rag Day</option>
+                        <option value="celebration">Celebration</option>
+                        <option value="seminar">Seminar</option>
+                        <option value="workshop">Workshop</option>
+                        <option value="hackathon">Hackathon</option>
+                        <option value="competition">Competition</option>
+                        <option value="tech_event">Tech Event</option>
+                        <option value="cultural_festival">Cultural Festival</option>
+                        <option value="religious_event">Religious Event</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="startDate">Start Date <span class="required">*</span></label>
+                        <input type="date" id="startDate" name="start_date" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate">End Date</label>
+                        <input type="date" id="endDate" name="end_date" />
+                        <small>Leave empty for single-day events</small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="eventDescription">Description</label>
+                    <textarea id="eventDescription" name="description" rows="5" placeholder="Describe the event..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="registrationLink">Registration Link</label>
+                    <input type="url" id="registrationLink" name="registration_link" placeholder="https://..." />
+                </div>
+                <div id="eventAlert" class="alert" style="display:none;"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelEventBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submitEventBtn">
+                        <span class="btn-text">Create Event</span>
+                        <span class="spinner" style="display:none;"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Event Details Modal -->
+    <div class="modal" id="eventDetailsModal" style="display:none;">
+        <div class="modal-overlay" id="detailsOverlay"></div>
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 id="detailsTitle">Event Details</h3>
+                <button class="modal-close" id="detailsClose">×</button>
+            </div>
+            <div id="eventDetailsContent" class="event-details">
+                <!-- Event details will be populated here -->
+            </div>
+            <div class="updates-section">
+                <h4>Updates</h4>
+                <form id="addUpdateForm" class="update-form" style="display:none;">
+                    <textarea id="updateText" placeholder="Add an update..." rows="3" required></textarea>
+                    <button type="submit" class="btn btn-primary btn-sm">Post Update</button>
+                </form>
+                <div id="updatesList" class="updates-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Registration Modal -->
+    <div class="modal" id="createRegistrationModal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create Registration</h3>
+                <button class="modal-close" id="registrationModalClose">&times;</button>
+            </div>
+            <form id="createRegistrationForm">
+                <div class="form-group">
+                    <label for="regTitle">Title <span class="required">*</span></label>
+                    <input type="text" id="regTitle" required placeholder="e.g., Annual Picnic">
+                </div>
+                <div class="form-group">
+                    <label for="regDesc">Description</label>
+                    <textarea id="regDesc" rows="3" placeholder="Details about the registration..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="regDeadline">Deadline</label>
+                        <input type="datetime-local" id="regDeadline">
+                    </div>
+                    <div class="form-group">
+                        <label for="regType">Type <span class="required">*</span></label>
+                        <select id="regType" required>
+                            <option value="free">Free</option>
+                            <option value="paid">Paid</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" id="regFeeGroup" style="display:none;">
+                    <label for="regFee">Fee Amount (BDT) <span class="required">*</span></label>
+                    <input type="number" id="regFee" min="0" step="0.01">
+                </div>
+                <div class="alert alert-error" id="regAlert" style="display: none;"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelRegBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submitRegBtn">
+                        <span class="btn-text">Create Registration</span>
+                        <span class="spinner" style="display: none;"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Fee Modal -->
+    <div class="modal" id="createFeeModal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create Fee Collection</h3>
+                <button class="modal-close" id="feeModalClose">&times;</button>
+            </div>
+            <form id="createFeeForm">
+                <div class="form-group">
+                    <label for="feeTitle">Title <span class="required">*</span></label>
+                    <input type="text" id="feeTitle" required placeholder="e.g., Monthly Subscription">
+                </div>
+                <div class="form-group">
+                    <label for="feeDesc">Description</label>
+                    <textarea id="feeDesc" rows="3" placeholder="Details about the fee..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="feeDeadline">Deadline</label>
+                        <input type="datetime-local" id="feeDeadline">
+                    </div>
+                    <div class="form-group">
+                        <label for="feeAmount">Amount (BDT) <span class="required">*</span></label>
+                        <input type="number" id="feeAmount" required min="0" step="0.01">
+                    </div>
+                </div>
+                <div class="alert alert-error" id="feeAlert" style="display: none;"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelFeeBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submitFeeBtn">
+                        <span class="btn-text">Create Fee</span>
+                        <span class="spinner" style="display: none;"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal" id="paymentModal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Make Payment</h3>
+                <button class="modal-close" id="paymentModalClose">&times;</button>
+            </div>
+            <form id="paymentForm">
+                <input type="hidden" id="payRelatedType">
+                <input type="hidden" id="payRelatedId">
+                
+                <div class="form-group" style="background:#f8f9fa;padding:12px;border-radius:8px;border:1px solid #e0e0e0">
+                    <label style="margin-bottom:4px">Payment For</label>
+                    <div id="payTitleDisplay" style="font-weight:bold;font-size:16px;margin-bottom:4px"></div>
+                    <div id="payAmountDisplay" style="color:var(--primary-orange);font-weight:600"></div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="payMethod">Payment Method <span class="required">*</span></label>
+                        <select id="payMethod" required>
+                            <option value="bkash">bKash</option>
+                            <option value="nagad">Nagad</option>
+                            <option value="rocket">Rocket</option>
+                            <option value="bank">Bank Transfer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="payNumber">Sender Number <span class="required">*</span></label>
+                        <input type="text" id="payNumber" required placeholder="017...">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="payTrxId">Transaction ID <span class="required">*</span></label>
+                    <input type="text" id="payTrxId" required placeholder="TrxID...">
+                </div>
+
+                <div class="form-group">
+                    <label for="payMessage">Note (Optional)</label>
+                    <textarea id="payMessage" rows="2" placeholder="Any additional info..."></textarea>
+                </div>
+
+                <div class="alert alert-error" id="payAlert" style="display: none;"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelPayBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submitPayBtn">
+                        <span class="btn-text">Submit Payment</span>
+                        <span class="spinner" style="display: none;"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Manage Participants/Payments Modal -->
+    <div class="modal" id="manageModal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 id="manageModalTitle">Manage</h3>
+                <button class="modal-close" id="manageModalClose">&times;</button>
+            </div>
+            <div class="manage-toolbar" id="manageToolbar" style="display: none; padding: 15px; border-bottom: 1px solid #e0e0e0; display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-secondary btn-sm" id="statusBtn" title="View registration status and details">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5z"></path>
+                    </svg>
+                    Status
+                </button>
+                <button class="btn btn-secondary btn-sm" id="editBtn" title="Edit registration details">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                    Edit
+                </button>
+                <button class="btn btn-warning btn-sm" id="finishBtn" title="Mark as finished/closed">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Finish
+                </button>
+                <button class="btn btn-danger btn-sm" id="deleteBtn" title="Delete this registration">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                    Delete
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="manageLoading" class="loading-state">
+                    <div class="loader"></div>
+                    <p>Loading data...</p>
+                </div>
+                <div id="manageContent" style="display: none;">
+                    <table class="data-table">
+                        <thead id="manageTableHead"></thead>
+                        <tbody id="manageTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth-manager.js"></script>
+    <script src="message-badge.js"></script>
+    <script src="dark-mode.js"></script>
+    <script src="approval.js"></script>
+    <script src="society.js"></script>
+</body>
+</html>

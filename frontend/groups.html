@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Swe_Society - Group Messages</title>
+    <link rel="stylesheet" href="home.css" />
+    <style>
+        html, body { 
+            margin: 0; 
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        * { box-sizing: border-box; }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        /* Navbar styling matching message.html */
+        .navbar {
+            background: #ffffff;
+            box-shadow: 0 2px 10px rgba(9, 18, 44, 0.15);
+            position: relative;
+            z-index: 1000;
+            padding: 5px 0;
+            flex-shrink: 0;
+        }
+        
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 30px;
+        }
+        
+        .nav-left { flex-shrink: 0; }
+        
+        .logo-link {
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            padding: 4px 8px;
+            margin: -4px -8px;
+        }
+        
+        .logo-link:hover {
+            transform: scale(1.05);
+            background: rgba(190, 49, 68, 0.1);
+        }
+        
+        .logo-svg {
+            height: 50px;
+            width: auto;
+            display: block;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-shrink: 0;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        
+        .btn-secondary {
+            background: #f0f2f5;
+            color: #1a1a1a;
+            position: relative;
+        }
+        
+        .btn-secondary:hover {
+            background: #e4e6eb;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #BE3144 0%, #540863 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(190, 49, 68, 0.4);
+        }
+        
+        /* User menu styles */
+        .user-menu { position: relative; }
+        
+        .user-menu-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 15px 8px 8px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .user-menu-btn:hover {
+            border-color: #540863;
+            box-shadow: 0 2px 10px rgba(190, 49, 68, 0.2);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #BE3144 0%, #540863 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .user-info { text-align: left; }
+        
+        .user-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: #1a1a1a;
+        }
+        
+        .user-username {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+        
+        .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .dropdown-item {
+            display: block;
+            width: 100%;
+            padding: 12px 20px;
+            text-align: left;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #1a1a1a;
+            transition: background 0.2s;
+        }
+        
+        .dropdown-item:hover { background: #f5f5f5; }
+        .dropdown-item:first-child { border-radius: 12px 12px 0 0; }
+        .dropdown-item:last-child { border-radius: 0 0 12px 12px; }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            min-height: 0;
+        }
+        
+        /* Groups Sidebar */
+        .groups-sidebar {
+            width: 360px;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+        
+        .sidebar-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 12px;
+        }
+        
+        .create-group-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #BE3144 0%, #540863 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .create-group-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(190, 49, 68, 0.3);
+        }
+        
+        .groups-list {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+        
+        .group-item {
+            padding: 16px 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f2f4;
+            transition: background 0.15s;
+            position: relative;
+        }
+        
+        .group-item:hover { background: #f6f8fa; }
+        .group-item.active { background: #e6f0ff; border-left: 3px solid #1f6feb; }
+        
+        .group-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .group-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .group-name {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+            font-size: 15px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .group-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #6b7280;
+            font-size: 13px;
+        }
+        
+        .group-last {
+            color: #6b7280;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Chat Panel */
+        .chat-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f9fafb;
+            min-width: 0;
+        }
+        
+        .chat-header {
+            padding: 20px 24px;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-title-section {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .chat-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+        
+        .chat-subtitle {
+            font-size: 13px;
+            color: #6b7280;
+        }
+        
+        .chat-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .icon-btn {
+            padding: 8px 12px;
+            background: #f3f4f6;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            transition: all 0.2s;
+        }
+        
+        .icon-btn:hover {
+            background: #e5e7eb;
+        }
+        
+        .chat-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-height: 0;
+        }
+        
+        .message-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .message-sender {
+            font-size: 12px;
+            font-weight: 600;
+            color: #540863;
+            padding-left: 12px;
+        }
+        
+        .msg {
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 70%;
+            word-wrap: break-word;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+        
+        .msg.me {
+            background: linear-gradient(135deg, #BE3144 0%, #540863 100%);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .msg.other {
+            background: white;
+            color: #1f2937;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .empty-state {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            gap: 16px;
+        }
+        
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            opacity: 0.5;
+        }
+        
+        .empty-state p {
+            font-size: 15px;
+            margin: 0;
+        }
+        
+        .chat-input-area {
+            padding: 16px 20px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            flex-shrink: 0;
+        }
+        
+        .input-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 24px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+        
+        .message-input:focus {
+            border-color: #540863;
+        }
+        
+        .send-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #BE3144 0%, #540863 100%);
+            color: white;
+            border: none;
+            border-radius: 24px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .send-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(190, 49, 68, 0.3);
+        }
+        
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #9ca3af;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        .close-btn:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        .modal-body {
+            padding: 24px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+            font-size: 14px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+        
+        .form-input:focus {
+            border-color: #540863;
+        }
+        
+        /* Batch Selection Tabs */
+        .batch-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .batch-tab {
+            padding: 10px 16px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: #6b7280;
+            font-size: 14px;
+            transition: all 0.2s;
+            margin-bottom: -2px;
+        }
+        
+        .batch-tab:hover {
+            color: #540863;
+        }
+        
+        .batch-tab.active {
+            color: #540863;
+            border-bottom-color: #540863;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Role Selection */
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .role-card {
+            padding: 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .role-card:hover {
+            border-color: #540863;
+            background: #f9fafb;
+        }
+        
+        .role-card.selected {
+            border-color: #540863;
+            background: linear-gradient(135deg, rgba(190, 49, 68, 0.1) 0%, rgba(84, 8, 99, 0.1) 100%);
+        }
+        
+        .role-card input[type="checkbox"] {
+            display: none;
+        }
+        
+        .role-label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+        
+        /* Member List */
+        .members-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        
+        .member-item {
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #f0f2f4;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        
+        .member-item:last-child {
+            border-bottom: none;
+        }
+        
+        .member-item:hover {
+            background: #f9fafb;
+        }
+        
+        .member-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .member-details {
+            flex: 1;
+        }
+        
+        .member-name {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 14px;
+        }
+        
+        .member-meta {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        
+        .modal-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        
+        .btn-cancel {
+            padding: 10px 20px;
+            background: #f3f4f6;
+            color: #374151;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .btn-cancel:hover {
+            background: #e5e7eb;
+        }
+        
+        .btn-submit {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #BE3144 0%, #540863 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(190, 49, 68, 0.3);
+        }
+
+        .search-box {
+            margin-bottom: 16px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: #540863;
+        }
+
+        .selected-count {
+            font-size: 13px;
+            color: #540863;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="home.html" class="logo-link">
+                    <svg class="logo-svg" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#BE3144;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#540863;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <text x="10" y="50" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="url(#logoGradient)">Swe_Society</text>
+                    </svg>
+                </a>
+            </div>
+            <div class="nav-right">
+                <a href="home.html" class="btn btn-secondary">Home</a>
+                <a href="society.html" class="btn btn-secondary">Society</a>
+                <a href="election.html" class="btn btn-secondary">Elections</a>
+                <a href="message.html" class="btn btn-secondary">Direct Messages</a>
+                <a href="groups.html" class="btn btn-primary">Groups</a>
+                <div class="user-menu">
+                    <button class="user-menu-btn" id="userMenuBtn">
+                        <div class="user-avatar" id="userAvatar">U</div>
+                        <div class="user-info">
+                            <div class="user-name" id="userName">User</div>
+                            <div class="user-username" id="userUsername">@user</div>
+                        </div>
+                    </button>
+                    <div class="dropdown-menu" id="dropdownMenu">
+                        <button class="dropdown-item" onclick="window.location.href='view-profile.html'">My Profile</button>
+                        <button class="dropdown-item" onclick="window.location.href='edit-profile.html'">Edit Profile</button>
+                        <button class="dropdown-item" id="logoutBtn">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Groups Sidebar -->
+        <div class="groups-sidebar">
+            <div class="sidebar-header">
+                <h2 class="sidebar-title">Group Messages</h2>
+                <button class="create-group-btn" id="createGroupBtn">
+                    <span>+ Create New Group</span>
+                </button>
+            </div>
+            <div class="groups-list" id="groupsList">
+                <!-- Groups will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Chat Panel -->
+        <div class="chat-panel">
+            <div class="empty-state" id="emptyState">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <p>Select a group to start messaging</p>
+            </div>
+
+            <div id="chatArea" style="display: none; height: 100%; display: flex; flex-direction: column;">
+                <div class="chat-header">
+                    <div class="chat-title-section">
+                        <div class="chat-title" id="chatTitle">Group Name</div>
+                        <div class="chat-subtitle" id="chatSubtitle">0 members</div>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="icon-btn" id="addMembersBtn">+ Add Members</button>
+                        <button class="icon-btn" id="settingsBtn" style="display: none;">⚙️ Settings</button>
+                    </div>
+                </div>
+                <div class="chat-body" id="chatBody">
+                    <!-- Messages will be loaded here -->
+                </div>
+                <div class="chat-input-area">
+                    <div class="input-row">
+                        <input type="text" class="message-input" id="messageInput" placeholder="Type a message..." />
+                        <button class="send-btn" id="sendBtn">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Group Modal -->
+    <div class="modal" id="createGroupModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Group</h3>
+                <button class="close-btn" id="closeCreateModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Group Name</label>
+                    <input type="text" class="form-input" id="groupNameInput" placeholder="Enter group name" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Select Members</label>
+                    
+                    <div class="batch-tabs">
+                        <button class="batch-tab active" data-tab="specific">Specific Members</button>
+                        <button class="batch-tab" data-tab="role">By Role</button>
+                        <button class="batch-tab" data-tab="mixed">Mixed</button>
+                    </div>
+
+                    <!-- Specific Members Tab -->
+                    <div class="tab-content active" id="specificTab">
+                        <div class="search-box">
+                            <input type="text" class="search-input" id="memberSearch" placeholder="Search members..." />
+                        </div>
+                        <div class="members-list" id="membersList">
+                            <!-- Members will be loaded here -->
+                        </div>
+                        <div class="selected-count" id="selectedCount">0 members selected</div>
+                    </div>
+
+                    <!-- By Role Tab -->
+                    <div class="tab-content" id="roleTab">
+                        <div class="role-grid" id="roleGrid">
+                            <div class="role-card" data-role="student">
+                                <input type="checkbox" id="roleStudent" />
+                                <label class="role-label" for="roleStudent">Students</label>
+                            </div>
+                            <div class="role-card" data-role="teacher">
+                                <input type="checkbox" id="roleTeacher" />
+                                <label class="role-label" for="roleTeacher">Teachers</label>
+                            </div>
+                            <div class="role-card" data-role="other">
+                                <input type="checkbox" id="roleOther" />
+                                <label class="role-label" for="roleOther">Others</label>
+                            </div>
+                        </div>
+                        <div class="members-list" id="roleMembersList">
+                            <!-- Role-based members will be loaded here -->
+                        </div>
+                        <div class="selected-count" id="roleSelectedCount">0 members selected</div>
+                    </div>
+
+                    <!-- Mixed Tab -->
+                    <div class="tab-content" id="mixedTab">
+                        <div class="search-box">
+                            <input type="text" class="search-input" id="mixedSearch" placeholder="Search members..." />
+                        </div>
+                        <div class="role-grid" style="margin-bottom: 16px;">
+                            <div class="role-card" data-role="student">
+                                <input type="checkbox" id="mixedRoleStudent" />
+                                <label class="role-label">Students</label>
+                            </div>
+                            <div class="role-card" data-role="teacher">
+                                <input type="checkbox" id="mixedRoleTeacher" />
+                                <label class="role-label">Teachers</label>
+                            </div>
+                            <div class="role-card" data-role="other">
+                                <input type="checkbox" id="mixedRoleOther" />
+                                <label class="role-label">Others</label>
+                            </div>
+                        </div>
+                        <div class="members-list" id="mixedMembersList">
+                            <!-- Mixed members will be loaded here -->
+                        </div>
+                        <div class="selected-count" id="mixedSelectedCount">0 members selected</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="cancelCreateBtn">Cancel</button>
+                <button class="btn-submit" id="submitCreateBtn">Create Group</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Members Modal -->
+    <div class="modal" id="addMembersModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Members</h3>
+                <button class="close-btn" id="closeAddModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="search-box">
+                    <input type="text" class="search-input" id="addMemberSearch" placeholder="Search members..." />
+                </div>
+                <div class="members-list" id="addMembersList">
+                    <!-- Available members will be loaded here -->
+                </div>
+                <div class="selected-count" id="addSelectedCount">0 members selected</div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="cancelAddBtn">Cancel</button>
+                <button class="btn-submit" id="submitAddBtn">Add Members</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Group Settings</h3>
+                <button class="close-btn" id="closeSettingsModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Group Members</label>
+                    <div class="members-list" id="settingsMembersList">
+                        <!-- Members with remove option will be loaded here -->
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 20px;">
+                    <button class="btn-submit" id="deleteGroupBtn" style="background: #dc2626; width: 100%;">
+                        Delete Group
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="closeSettingsBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth-manager.js"></script>
+    <script src="message-badge.js"></script>
+    <script src="groups.js"></script>
+</body>
+</html>

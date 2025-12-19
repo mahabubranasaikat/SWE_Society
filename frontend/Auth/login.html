@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swe_Society - Login</title>
+    <link rel="stylesheet" href="../typography.css">
+    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="../dark-mode.css">
+</head>
+<body>
+
+    <div class="container">
+        <div class="left-panel">
+            <img src="../file.svg" alt="SWE Society Logo" class="logo">
+           
+        </div>
+        <div class="right-panel">
+            <div id="loginForm" class="login-form">
+                <h2>Login to your account</h2>
+                <form id="authForm">
+                    <div class="form-group">
+                        <label for="emailOrUsername">Email or Username</label>
+                        <input type="text" id="emailOrUsername" name="emailOrUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="loginBtn">
+                        <span id="btnText">Login</span>
+                        <div class="spinner" id="spinner" style="display: none;"></div>
+                    </button>
+                </form>
+
+                <div class="auth-links">
+                    <p>Don't have an account? <a href="register.html">Register here</a></p>
+                </div>
+
+                <div id="alert" class="alert" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../frontend/auth-manager.js"></script>
+    <script src="../dark-mode.js"></script>
+    <script src="login.js"></script>
+</body>
+</html>
