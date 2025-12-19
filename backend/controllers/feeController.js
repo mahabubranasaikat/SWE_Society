@@ -53,14 +53,74 @@ exports.createFeeCollection = async (req, res) => {
     }
 };
 
+exports.getFeeCollection = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.userId;
+
+        const [fees] = await db.query(`
+            SELECT f.*, u.name as creator_name
+            FROM fee_collections f
+            JOIN users u ON f.created_by = u.id
+            WHERE f.id = ?
+        `, [id]);
+
+        if (fees.length === 0) {
+            return res.status(404).json({ success: false, message: 'Fee collection not found' });
+        }
+
+        const fee = fees[0];
+
+        // Check if user can view this fee collection (creator or committee)
+        const canView = fee.created_by === userId || await hasSocietyRole(userId);
+        if (!canView) {
+            return res.status(403).json({ success: false, message: 'Access denied' });
+        }
+
+        res.json({ success: true, data: fee });
+    } catch (error) {
+        console.error('Error fetching fee collection:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+exports.updateFeeCollection = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, description, deadline, amount } = req.body;
+        const userId = req.user.userId;
+
+        // Check if user is creator
+        if (!(await isFeeCreator(userId, id))) {
+            return res.status(403).json({ success: false, message: 'Only creator can update fee collection' });
+        }
+
+        // Validate required fields
+        if (!title || !amount) {
+            return res.status(400).json({ success: false, message: 'Title and amount are required' });
+        }
+
+        // Update fee collection
+        await db.query(
+            'UPDATE fee_collections SET title = ?, description = ?, deadline = ?, amount = ? WHERE id = ?',
+            [title, description, deadline || null, amount, id]
+        );
+
+        res.json({ success: true, message: 'Fee collection updated successfully' });
+    } catch (error) {
+        console.error('Error updating fee collection:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
 exports.getFeeCollections = async (req, res) => {
     try {
         const userId = req.user.userId;
-        
+
         const [fees] = await db.query(`
-            SELECT f.*, u.name as creator_name 
-            FROM fee_collections f 
-            JOIN users u ON f.created_by = u.id 
+            SELECT f.*, u.name as creator_name
+            FROM fee_collections f
+            JOIN users u ON f.created_by = u.id
             ORDER BY f.created_at DESC
         `);
 
@@ -69,7 +129,7 @@ exports.getFeeCollections = async (req, res) => {
                 'SELECT status FROM payment_transactions WHERE related_type = "fee_collection" AND related_id = ? AND user_id = ? ORDER BY created_at DESC LIMIT 1',
                 [fee.id, userId]
             );
-            
+
             const now = new Date();
             const deadline = fee.deadline ? new Date(fee.deadline) : null;
             const is_open = fee.status === 'active' && (!deadline || deadline > now);

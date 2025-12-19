@@ -106,15 +106,22 @@ document.addEventListener('DOMContentLoaded', async () => {
      const editRegFeeGroup = document.getElementById('editRegFeeGroup');
      const editRegAlert = document.getElementById('editRegAlert');
 
-    // ==================== FEES ELEMENTS ====================
-    const feesList = document.getElementById('feesList');
-    const feesLoading = document.getElementById('feesLoading');
-    const createFeeOption = document.getElementById('createFeeOption');
-    const createFeeModal = document.getElementById('createFeeModal');
-    const feeModalClose = document.getElementById('feeModalClose');
-    const cancelFeeBtn = document.getElementById('cancelFeeBtn');
-    const createFeeForm = document.getElementById('createFeeForm');
-    const feeAlert = document.getElementById('feeAlert');
+     // ==================== FEES ELEMENTS ====================
+     const feesList = document.getElementById('feesList');
+     const feesLoading = document.getElementById('feesLoading');
+     const createFeeOption = document.getElementById('createFeeOption');
+     const createFeeModal = document.getElementById('createFeeModal');
+     const feeModalClose = document.getElementById('feeModalClose');
+     const cancelFeeBtn = document.getElementById('cancelFeeBtn');
+     const createFeeForm = document.getElementById('createFeeForm');
+     const feeAlert = document.getElementById('feeAlert');
+
+     // Edit Fee Modal elements
+     const editFeeModal = document.getElementById('editFeeModal');
+     const editFeeModalClose = document.getElementById('editFeeModalClose');
+     const cancelEditFeeBtn = document.getElementById('cancelEditFeeBtn');
+     const editFeeForm = document.getElementById('editFeeForm');
+     const editFeeAlert = document.getElementById('editFeeAlert');
 
     // ==================== PAYMENT MODAL ELEMENTS ====================
     const paymentModal = document.getElementById('paymentModal');
@@ -1172,6 +1179,13 @@ document.addEventListener('DOMContentLoaded', async () => {
          editRegAlert.style.display = 'none';
      }
 
+     function openEditFeeModal() { editFeeModal.style.display = 'flex'; }
+     function closeEditFeeModal() {
+         editFeeModal.style.display = 'none';
+         editFeeForm.reset();
+         editFeeAlert.style.display = 'none';
+     }
+
     function openFeeModal() { createFeeModal.style.display = 'flex'; }
     function closeFeeModal() { 
         createFeeModal.style.display = 'none'; 
@@ -1219,6 +1233,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
      if (editRegistrationModalClose) editRegistrationModalClose.addEventListener('click', closeEditRegistrationModal);
      if (cancelEditRegBtn) cancelEditRegBtn.addEventListener('click', closeEditRegistrationModal);
+
+     if (editFeeModalClose) editFeeModalClose.addEventListener('click', closeEditFeeModal);
+     if (cancelEditFeeBtn) cancelEditFeeBtn.addEventListener('click', closeEditFeeModal);
     if (feeModalClose) feeModalClose.addEventListener('click', closeFeeModal);
     if (cancelFeeBtn) cancelFeeBtn.addEventListener('click', closeFeeModal);
     if (paymentModalClose) paymentModalClose.addEventListener('click', closePaymentModal);
@@ -1231,6 +1248,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
      const editRegOverlay = editRegistrationModal?.querySelector('.modal-overlay');
      if (editRegOverlay) editRegOverlay.addEventListener('click', closeEditRegistrationModal);
+
+     const editFeeOverlay = editFeeModal?.querySelector('.modal-overlay');
+     if (editFeeOverlay) editFeeOverlay.addEventListener('click', closeEditFeeModal);
 
     const feeOverlay = createFeeModal?.querySelector('.modal-overlay');
     if (feeOverlay) feeOverlay.addEventListener('click', closeFeeModal);
@@ -1336,6 +1356,49 @@ document.addEventListener('DOMContentLoaded', async () => {
              } catch (err) {
                  editRegAlert.textContent = 'Network error';
                  editRegAlert.style.display = 'block';
+             } finally {
+                 btn.disabled = false;
+                 btn.querySelector('.spinner').style.display = 'none';
+                 btn.querySelector('.btn-text').style.display = 'inline';
+             }
+         });
+     }
+
+     // --- Edit Fee ---
+     if (editFeeForm) {
+         editFeeForm.addEventListener('submit', async (e) => {
+             e.preventDefault();
+             const btn = document.getElementById('submitEditFeeBtn');
+             btn.disabled = true;
+             btn.querySelector('.spinner').style.display = 'inline-block';
+             btn.querySelector('.btn-text').style.display = 'none';
+             editFeeAlert.style.display = 'none';
+
+             const feeId = document.getElementById('editFeeId').value;
+             const data = {
+                 title: document.getElementById('editFeeTitle').value,
+                 description: document.getElementById('editFeeDesc').value,
+                 deadline: document.getElementById('editFeeDeadline').value,
+                 amount: document.getElementById('editFeeAmount').value
+             };
+
+             try {
+                 const resp = await window.authManager.authenticatedFetch(`${API_BASE}/fees/${feeId}`, {
+                     method: 'PUT',
+                     body: JSON.stringify(data)
+                 });
+                 const json = await resp.json();
+                 if (resp.ok && json.success) {
+                     closeEditFeeModal();
+                     loadFees();
+                     document.querySelector('[data-tab="fees"]').click();
+                 } else {
+                     editFeeAlert.textContent = json.message || 'Failed to update';
+                     editFeeAlert.style.display = 'block';
+                 }
+             } catch (err) {
+                 editFeeAlert.textContent = 'Network error';
+                 editFeeAlert.style.display = 'block';
              } finally {
                  btn.disabled = false;
                  btn.querySelector('.spinner').style.display = 'none';
@@ -1816,9 +1879,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                          document.getElementById('editRegFee').required = data.type === 'paid';
 
                          openEditRegistrationModal();
-                     } else {
-                         // For fees, we don't have edit modal yet, show alert
-                         alert(`Edit for Fee coming soon.\n\nCurrent Title: ${data.title}`);
+                     } else if (ctx.type === 'fee') {
+                         // Populate edit fee form
+                         document.getElementById('editFeeId').value = data.id;
+                         document.getElementById('editFeeTitle').value = data.title;
+                         document.getElementById('editFeeDesc').value = data.description || '';
+                         document.getElementById('editFeeDeadline').value = data.deadline ? new Date(data.deadline).toISOString().slice(0, 16) : '';
+                         document.getElementById('editFeeAmount').value = data.amount || '';
+
+                         openEditFeeModal();
                      }
                  }
              } catch (e) {

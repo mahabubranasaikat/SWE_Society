@@ -5,6 +5,8 @@ const { verifyToken } = require('../middleware/auth');
 
 router.post('/', verifyToken, feeController.createFeeCollection);
 router.get('/', verifyToken, feeController.getFeeCollections);
+router.get('/:id', verifyToken, feeController.getFeeCollection);
+router.put('/:id', verifyToken, feeController.updateFeeCollection);
 router.post('/pay', verifyToken, feeController.submitPayment);
 router.put('/:id/close', verifyToken, feeController.closeFeeCollection);
 router.delete('/:id', verifyToken, feeController.deleteFeeCollection);
