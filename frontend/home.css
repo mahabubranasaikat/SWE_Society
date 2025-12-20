@@ -34,22 +34,16 @@ body {
 .logo-link {
     text-decoration: none;
     color: inherit;
-    transition: all 0.3s ease;
-    border-radius: 8px;
-    padding: 4px 8px;
-    margin: -4px -8px;
+    cursor: default;
+    outline: none;
 }
 
-.logo-link:hover {
-    transform: scale(1.05);
-    background: rgba(190, 49, 68, 0.1);
-}
+
 
 .logo-svg {
     height: 50px;
     width: auto;
     display: block;
-    transition: all 0.3s ease;
 }
 
 .logo {
