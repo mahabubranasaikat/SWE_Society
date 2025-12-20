@@ -725,17 +725,336 @@ class ApprovalManager {
     }
 
     // Show edit modal
-    showEditModal(id) {
-        // TODO: Implement edit functionality
-        this.showError('Edit functionality coming soon');
+    async showEditModal(id) {
+        try {
+            console.log('[ApprovalManager] showEditModal called with id:', id);
+
+            // Fetch current approval data
+            if (!window.authManager) {
+                this.showError('Authentication system not ready');
+                return;
+            }
+
+            const response = await window.authManager.authenticatedFetch(
+                `${this.apiBase}/approvals/${id}`
+            );
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+
+            if (!result.success) {
+                throw new Error(result.message || 'Failed to load approval details');
+            }
+
+            const approval = result.data;
+
+            // Verify ownership
+            if (!this.currentUser || this.currentUser.userId !== approval.creator_id) {
+                this.showError('You can only edit your own approval requests');
+                return;
+            }
+
+            // Check if approval can be edited (only active ones)
+            if (approval.status !== 'active') {
+                this.showError('Only active approval requests can be edited');
+                return;
+            }
+
+            this.showEditModalUI(approval);
+
+        } catch (error) {
+            console.error('[ApprovalManager] Error loading approval for edit:', error);
+            this.showError('Failed to load approval details for editing');
+        }
+    }
+
+    // Show edit modal UI
+    showEditModalUI(approval) {
+        const modal = document.getElementById('editApprovalModal');
+        if (!modal) {
+            console.error('Edit modal element not found');
+            this.showError('Edit modal not available');
+            return;
+        }
+
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Edit Approval Request</h2>
+                    <button class="closeApprovalModal" onclick="document.getElementById('editApprovalModal').style.display='none'">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <div id="editApprovalError" class="alert alert-error" style="display: none;"></div>
+                    <form id="editApprovalForm">
+                        <div class="form-group">
+                            <label for="editApprovalTitle">Title *</label>
+                            <input type="text" id="editApprovalTitle" required maxlength="255" placeholder="Enter approval request title" value="${this.escapeHtml(approval.title)}">
+                            <small style="color: #6b7280;">Max 255 characters</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editApprovalDescription">Description</label>
+                            <textarea id="editApprovalDescription" rows="4" maxlength="2000" placeholder="Enter approval request description">${this.escapeHtml(approval.description || '')}</textarea>
+                            <small style="color: #6b7280;">Optional, max 2000 characters</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editApprovalDeadline">Deadline</label>
+                            <input type="datetime-local" id="editApprovalDeadline" value="${approval.deadline ? new Date(approval.deadline).toISOString().slice(0, 16) : ''}">
+                            <small style="color: #6b7280;">Optional</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editRecipientSelect">Select Recipients * (Hold Ctrl/Cmd for multiple)</label>
+                            <div id="editRecipientLoadingState" style="padding: 20px; text-align: center; color: #6b7280;">
+                                Loading users...
+                            </div>
+                            <select id="editRecipientSelect" multiple required size="8" style="display: none;"></select>
+                            <small>Selected: <span id="editSelectedCount">0</span> users</small>
+                        </div>
+
+                        <div class="button-group">
+                            <button type="submit" class="btn btn-primary" id="editApprovalSubmitBtn">
+                                <span class="btn-text">Update Request</span>
+                                <span class="spinner" style="display: none;"></span>
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('editApprovalModal').style.display='none'">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+
+        // Load users for recipient selection
+        this.loadUsersForEditSelection(approval.recipients);
+
+        const form = document.getElementById('editApprovalForm');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.updateApproval(approval.id);
+            });
+        }
+
+        modal.style.display = 'block';
+    }
+
+    // Load users for edit recipient selection
+    async loadUsersForEditSelection(currentRecipients) {
+        const loadingState = document.getElementById('editRecipientLoadingState');
+        const select = document.getElementById('editRecipientSelect');
+
+        try {
+            // Ensure currentUser is loaded
+            if (!this.currentUser) {
+                this.currentUser = JSON.parse(localStorage.getItem('Swe_Society_user'));
+            }
+
+            if (!window.authManager) {
+                throw new Error('Authentication system not ready');
+            }
+
+            const response = await window.authManager.authenticatedFetch(
+                `${this.apiBase}/profile/users/all`
+            );
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+
+            if (result.success && result.data) {
+                if (!select) {
+                    console.error('edit recipient select element not found');
+                    return;
+                }
+
+                const currentUserId = this.currentUser?.id;
+                const users = result.data.filter(u => u.id !== currentUserId);
+
+                if (users.length === 0) {
+                    select.innerHTML = '<option disabled>No other users available</option>';
+                } else {
+                    // Get current recipient IDs
+                    const currentRecipientIds = currentRecipients.map(r => r.user_id);
+
+                    select.innerHTML = users
+                        .map(u => `<option value="${u.id}" ${currentRecipientIds.includes(u.id) ? 'selected' : ''}>${this.escapeHtml(u.name)} (@${this.escapeHtml(u.username)})</option>`)
+                        .join('');
+                }
+
+                // Update selected count
+                this.updateEditSelectedCount();
+
+                // Show select, hide loading
+                if (loadingState) loadingState.style.display = 'none';
+                select.style.display = 'block';
+
+                // Add change listener
+                select.addEventListener('change', () => {
+                    this.updateEditSelectedCount();
+                });
+            } else {
+                throw new Error(result.message || 'Failed to load users');
+            }
+        } catch (error) {
+            console.error('Error loading users for edit:', error);
+
+            // Show error in the modal
+            if (loadingState) {
+                loadingState.innerHTML = `
+                    <p style="color: #dc2626;">Failed to load users</p>
+                    <button class="btn btn-secondary btn-sm" onclick="approvalManager.loadUsersForEditSelection(${JSON.stringify(currentRecipients)})">Retry</button>
+                `;
+            }
+
+            this.showEditModalError(error.message || 'Failed to load users for recipient selection');
+        }
+    }
+
+    // Update selected count for edit modal
+    updateEditSelectedCount() {
+        const select = document.getElementById('editRecipientSelect');
+        const selectedCount = document.getElementById('editSelectedCount');
+
+        if (select && selectedCount) {
+            selectedCount.textContent = select.selectedOptions.length;
+        }
+    }
+
+    // Update approval
+    async updateApproval(id) {
+        const submitBtn = document.getElementById('editApprovalSubmitBtn');
+        const btnText = submitBtn?.querySelector('.btn-text');
+        const spinner = submitBtn?.querySelector('.spinner');
+
+        try {
+            // Show loading state
+            if (submitBtn) submitBtn.disabled = true;
+            if (btnText) btnText.style.display = 'none';
+            if (spinner) spinner.style.display = 'inline-block';
+
+            // Clear previous errors
+            this.hideEditModalError();
+
+            const title = document.getElementById('editApprovalTitle')?.value?.trim();
+            const description = document.getElementById('editApprovalDescription')?.value?.trim();
+            const deadline = document.getElementById('editApprovalDeadline')?.value;
+            const recipientSelect = document.getElementById('editRecipientSelect');
+
+            // Input validation
+            if (!title) {
+                throw new Error('Title is required');
+            }
+
+            if (title.length > 255) {
+                throw new Error('Title is too long (max 255 characters)');
+            }
+
+            if (description && description.length > 2000) {
+                throw new Error('Description is too long (max 2000 characters)');
+            }
+
+            if (!recipientSelect || recipientSelect.selectedOptions.length === 0) {
+                throw new Error('At least one recipient is required');
+            }
+
+            const recipientIds = Array.from(recipientSelect.selectedOptions)
+                .map(option => parseInt(option.value))
+                .filter(id => !isNaN(id) && id > 0);
+
+            if (recipientIds.length === 0) {
+                throw new Error('Please select valid recipients');
+            }
+
+            // Validate deadline if provided
+            if (deadline) {
+                const deadlineDate = new Date(deadline);
+                if (isNaN(deadlineDate.getTime())) {
+                    throw new Error('Invalid deadline format');
+                }
+                if (deadlineDate < new Date()) {
+                    throw new Error('Deadline must be in the future');
+                }
+            }
+
+            if (!window.authManager) {
+                throw new Error('Authentication system not ready');
+            }
+
+            // Prepare request body
+            const requestBody = {
+                title,
+                description: description || null,
+                deadline: deadline || null,
+                recipientIds
+            };
+
+            const response = await window.authManager.authenticatedFetch(
+                `${this.apiBase}/approvals/${id}/update`,
+                {
+                    method: 'PUT',
+                    body: JSON.stringify(requestBody)
+                }
+            );
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+
+            if (result.success) {
+                this.showSuccess('Approval request updated successfully');
+                document.getElementById('editApprovalModal').style.display = 'none';
+                await this.loadApprovals();
+            } else {
+                throw new Error(result.message || 'Failed to update approval request');
+            }
+        } catch (error) {
+            console.error('Error updating approval:', error);
+            this.showEditModalError(error.message || 'Failed to update approval request');
+        } finally {
+            // Reset button state
+            if (submitBtn) submitBtn.disabled = false;
+            if (btnText) btnText.style.display = 'inline';
+            if (spinner) spinner.style.display = 'none';
+        }
+    }
+
+    // Show edit modal error
+    showEditModalError(message) {
+        const errorEl = document.getElementById('editApprovalError');
+        if (errorEl) {
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+        }
+    }
+
+    // Hide edit modal error
+    hideEditModalError() {
+        const errorEl = document.getElementById('editApprovalError');
+        if (errorEl) {
+            errorEl.style.display = 'none';
+            errorEl.textContent = '';
+        }
     }
 
     // Close all modals
     closeAllModals() {
         const createModal = document.getElementById('createApprovalModal');
+        const editModal = document.getElementById('editApprovalModal');
         const detailsModal = document.getElementById('approvalDetailsModal');
-        
+
         if (createModal) createModal.style.display = 'none';
+        if (editModal) editModal.style.display = 'none';
         if (detailsModal) detailsModal.style.display = 'none';
     }
 

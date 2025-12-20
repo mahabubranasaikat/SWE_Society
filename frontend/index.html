@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swe_Society - Discover Posts</title>
+    <title>Swe_Society</title>
     <link rel="stylesheet" href="typography.css">
     <link rel="stylesheet" href="navbar.css">
     <style>
@@ -15,8 +15,9 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: white;
             min-height: 100vh;
+            color: #1a1a1a;
         }
 
         /* Main Content */
@@ -39,7 +40,7 @@
             font-size: 48px;
             color: #1f2937;
             margin-bottom: 10px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #540863 0%, #7c3aed 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -61,7 +62,7 @@
             width: 60px;
             height: 60px;
             border: 5px solid #f3f3f3;
-            border-top: 5px solid #667eea;
+            border-top: 5px solid #540863;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto 20px;
@@ -116,7 +117,7 @@
             padding: 25px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
             transition: all 0.3s ease;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #540863;
         }
 
         .post-card:hover {
@@ -181,7 +182,7 @@
 
         .author-username {
             font-size: 12px;
-            color: #667eea;
+            color: #7c3aed;
         }
 
         .post-description {
@@ -208,7 +209,7 @@
             background: #f0f0f0;
             border-radius: 15px;
             font-size: 12px;
-            color: #667eea;
+            color: #540863;
             font-weight: 600;
         }
 
@@ -221,7 +222,7 @@
         }
 
         .post-link {
-            color: #667eea;
+            color: #540863;
             font-size: 13px;
             font-weight: 600;
             text-decoration: none;
@@ -229,7 +230,7 @@
         }
 
         .post-link:hover {
-            color: #764ba2;
+            color: #7c3aed;
         }
 
         .view-more {
@@ -264,42 +265,378 @@
             margin-bottom: 30px;
         }
 
-        /* Responsive Design */
-        @media (max-width: 1024px) {
-            .posts-grid {
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        /* Navigation Center */
+        .nav-center {
+            display: flex;
+            gap: 15px;
+            flex-shrink: 0;
+        }
+
+        /* Footer */
+        .footer {
+            background: #1f2937;
+            color: white;
+            padding: 40px 0 0;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+
+        .footer-section {
+            padding: 0 20px;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-section:last-child {
+            border-right: none;
+        }
+
+        .footer-section h3 {
+            font-size: 18px;
+            color: white;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .footer-section p {
+            color: #e5e7eb;
+            line-height: 1.6;
+            margin: 0 0 10px 0;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 15px;
+        }
+
+        .footer-links li {
+            margin: 0;
+        }
+
+        .footer-links a {
+            color: #7c3aed;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .footer-links a:hover {
+            color: #a855f7;
+            text-decoration: underline;
+        }
+
+        .toggle-header {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        .toggle-header::after {
+            content: '+';
+            position: absolute;
+            right: 0;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-header.active::after {
+            content: '−';
+        }
+
+        .toggle-content {
+            margin-top: 10px;
+        }
+
+        .footer-section p {
+            color: #e5e7eb;
+            line-height: 1.6;
+            margin: 0 0 10px 0;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 8px;
+        }
+
+        .footer-links a {
+            color: #7c3aed;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 14px;
+        }
+
+        .footer-links a:hover {
+            color: #a855f7;
+            text-decoration: underline;
+        }
+
+        .social-media {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .social-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: #7c3aed;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background: #7c3aed;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+
+        .social-link svg {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .footer-section a {
+            color: #7c3aed;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: #a855f7;
+            text-decoration: underline;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #374151;
+            padding: 20px 0;
+            margin-top: 30px;
+        }
+
+        .footer-bottom-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .footer-bottom p {
+            color: #9ca3af;
+            font-size: 14px;
+            margin: 0;
+        }
+
+            .footer-bottom-links {
+                justify-content: center;
+            }
+
+
+
+            .activities-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            .activity-card {
+                padding: 20px;
+            }
+
+            .main-logo {
+                width: 150px;
+            }
+
+        .footer-bottom-links a {
+            color: #7c3aed;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .footer-bottom-links a:hover {
+            color: #a855f7;
+            text-decoration: underline;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            position: relative;
+            background: white;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        .about-modal-content {
+            max-width: 400px;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
 
-        @media (max-width: 768px) {
-            .nav-container {
-                padding: 0 15px;
-            }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 30px;
+            border-bottom: 1px solid #e0e0e0;
+        }
 
-            .nav-right {
-                gap: 10px;
-            }
+        .modal-header h3 {
+            font-size: 22px;
+            color: #1f2937;
+        }
 
-            .btn {
-                padding: 8px 16px;
-                font-size: 13px;
-            }
+        .modal-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            color: #6b7280;
+            transition: color 0.3s ease;
+        }
 
-            .container {
-                padding: 0 15px;
-            }
+        .modal-close:hover {
+            color: #333;
+        }
 
-            .page-header h1 {
-                font-size: 32px;
-            }
+        .modal-body {
+            padding: 30px;
+        }
 
-            .page-header p {
-                font-size: 16px;
-            }
+        .modal-body p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+            color: #374151;
+        }
 
-            .posts-grid {
-                grid-template-columns: 1fr;
-            }
+        /* Logo Section */
+        .logo-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .main-logo {
+            width: 450px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Society Activities */
+        .activities-section {
+            margin-bottom: 60px;
+        }
+
+        .activities-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .activity-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .activity-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            border-color: #540863;
+        }
+
+        .activity-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .activity-card h3 {
+            font-size: 20px;
+            color: #1f2937;
+            margin-bottom: 15px;
+        }
+
+        .activity-card p {
+            color: #6b7280;
+            line-height: 1.6;
+            margin: 0;
         }
     </style>
 </head>
@@ -314,194 +651,208 @@
                 </a>
             </div>
 
-            <!-- Auth Buttons -->
-            <div class="nav-right">
-                <a href="Auth/login.html" class="btn btn-secondary">Login</a>
-                <a href="create-profile.html" class="btn btn-primary">Sign Up</a>
-            </div>
+            <!-- Navigation Buttons -->
+             <div class="nav-center">
+                 <a href="https://www.sust.edu/institutes/iict/faculty" class="btn btn-secondary" target="_blank">Faculty</a>
+                 <a href="comitte.html" class="btn btn-secondary">SWE Family</a>
+                 <a href="comitte.html" class="btn btn-secondary">Committee</a>
+                 <button class="btn btn-secondary" id="nav-about" title="Click to view society achievements">Achievements</button>
+                  <a href="https://admission.sust.edu.bd" class="btn btn-secondary" target="_blank">Admission</a>
+             </div>
+
+             <!-- Auth Buttons -->
+             <div class="nav-right">
+                 <a href="Auth/login.html" class="btn btn-secondary">Sign In</a>
+                 <a href="Auth/register.html" class="btn btn-primary">Sign Up</a>
+             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <div class="container">
-            <!-- Page Header -->
-            <div class="page-header">
-                <h1>Discover Amazing Posts</h1>
-                <p>Explore public posts from our community of developers</p>
-            </div>
+     <!-- Main Content -->
+     <main class="main-content">
+          <div class="container">
+              <!-- Logo Section -->
+              <div class="logo-section">
+                  <img src="file.svg" alt="SWE Society Logo" class="main-logo">
+              </div>
 
-            <!-- Loading State -->
-            <div id="loadingState" class="loading-state">
-                <div class="loader"></div>
-                <p>Loading posts...</p>
-            </div>
+              <!-- Page Header -->
+              <div class="page-header">
+                 <h1>Welcome to SWE Society</h1>
+                 <p>Empowering students in software engineering through collaboration, innovation, and community engagement</p>
+             </div>
 
-            <!-- Empty State -->
-            <div id="emptyState" class="empty-state" style="display: none;">
-                <div class="empty-icon">📦</div>
-                <h3>No Public Posts Yet</h3>
-                <p>Check back later to discover amazing posts and updates from our community!</p>
-            </div>
+             <!-- Society Activities Section -->
+             <div class="activities-section">
+                 <div class="activities-grid">
+                     <div class="activity-card">
+                         <div class="activity-icon">🎓</div>
+                         <h3>Academic Excellence</h3>
+                         <p>Supporting students in software engineering education and skill development</p>
+                     </div>
+                     <div class="activity-card">
+                         <div class="activity-icon">📅</div>
+                         <h3>Event Management</h3>
+                         <p>Organizing workshops, seminars, and technical events for student growth</p>
+                     </div>
+                     <div class="activity-card">
+                         <div class="activity-icon">🌱</div>
+                         <h3>Student Growth</h3>
+                         <p>Fostering personal and professional development through mentorship and skill-building opportunities</p>
+                     </div>
+                     <div class="activity-card">
+                         <div class="activity-icon">👥</div>
+                         <h3>Community Engagement</h3>
+                         <p>Fostering collaboration and networking among students and faculty</p>
+                     </div>
+                     <div class="activity-card">
+                         <div class="activity-icon">⚽</div>
+                         <h3>Sports & Recreation</h3>
+                         <p>Promoting work-life balance through sports and recreational activities</p>
+                     </div>
+                     <div class="activity-card">
+                         <div class="activity-icon">🏆</div>
+                         <h3>Competitions</h3>
+                         <p>Hosting coding competitions, hackathons, and technical challenges</p>
+                     </div>
+                 </div>
+             </div>
 
-            <!-- Posts Grid -->
-            <div id="postsGrid" class="posts-grid" style="display: none;">
-                <!-- Posts will be dynamically loaded here -->
-            </div>
+             <!-- CTA Section -->
+             <div class="cta-section">
+                 <h2>Join SWE Society Today</h2>
+                 <p>Be part of a vibrant community dedicated to software engineering excellence</p>
+                 <a href="Auth/login.html" class="btn btn-primary">Get Started</a>
+             </div>
+         </div>
+     </main>
 
-            <!-- Load More Button -->
-            <div class="load-more-container" id="loadMoreContainer" style="display: none;">
-                <button class="btn btn-primary" id="loadMoreBtn">
-                    <span>Load More Posts</span>
-                </button>
-            </div>
+     <!-- About Modal -->
+     <div class="modal" id="aboutModal">
+         <div class="modal-overlay" id="aboutModalOverlay"></div>
+         <div class="modal-content about-modal-content">
+             <div class="modal-header">
+                 <h3>SWE Society Achievements</h3>
+                 <button class="modal-close" id="aboutModalClose">
+                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                         <line x1="18" y1="6" x2="6" y2="18"></line>
+                         <line x1="6" y1="6" x2="18" y2="18"></line>
+                     </svg>
+                 </button>
+             </div>
+             <div class="modal-body">
+                 <p>🏆 Organized 15+ successful coding competitions and hackathons</p>
+                 <p>👥 Mentored 200+ students in software engineering projects</p>
+                 <p>📚 Conducted workshops and seminars for skill development</p>
+                 <p>🤝 Collaborated with industry partners for internships and placements</p>
+                 <p>🌟 Recognized as one of the top student societies at SUST</p>
+             </div>
+         </div>
+     </div>
 
-            <!-- CTA Section -->
-            <div class="cta-section">
-                <h2>Join Swe_Society Today</h2>
-                <p>Share your posts, discover new ideas, and connect with fellow developers</p>
-                <a href="/create-profile.html" class="btn btn-primary">Get Started</a>
-            </div>
-        </div>
-    </main>
+     <!-- Footer -->
+     <footer class="footer">
+         <div class="footer-content">
+             <div class="footer-section">
+                 <h3 class="toggle-header">SWE Society</h3>
+                 <div class="toggle-content" style="display: none;">
+                     <p>An academic society at Shahjalal University of Science and Technology, fostering collaboration and innovation in software engineering.</p>
+                     <p>Shahjalal University of Science and Technology<br>
+                     Sylhet, Bangladesh</p>
+                 </div>
+             </div>
+             <div class="footer-section">
+                 <h3>Institute Links</h3>
+                 <ul class="footer-links">
+                     <li><a href="https://www.sust.edu/institutes/iict" target="_blank">Overview</a></li>
+                     <li><a href="https://www.sust.edu/institutes/iict/message-from-director" target="_blank">Message From Director</a></li>
+                     <li><a href="https://www.sust.edu/institutes/iict/program" target="_blank">Programs</a></li>
+                     <li><a href="https://www.sust.edu/institutes/iict/admission" target="_blank">Admission</a></li>
+                     <li><a href="https://www.sust.edu/institutes/iict/curriculum" target="_blank">Curriculum</a></li>
+                     <li><a href="https://www.sust.edu/institutes/iict/student-engagement-and-support" target="_blank">Student Engagement & Support</a></li>
+                     <li><a href="https://www.sust.edu/institutes/iict/faculty" target="_blank">Faculty</a></li>
+                     <li><a href="https://www.sust.edu/institutes/iict/student-adviser" target="_blank">Student Adviser</a></li>
+                     <li><a href="https://www.sust.edu/institutes/iict/officers" target="_blank">Officers</a></li>
+                     <li><a href="https://www.sust.edu/institutes/iict/mission" target="_blank">Mission</a></li>
+                     <li><a href="https://www.sust.edu/institutes/iict/act" target="_blank">Act</a></li>
+                     <li><a href="https://www.sust.edu/institutes/iict/notice-board" target="_blank">Notice Board</a></li>
+                     <li><a href="https://www.sust.edu/institutes/iict/news-and-events" target="_blank">News & Events</a></li>
+                     <li><a href="https://www.sust.edu/institutes/iict/contact-us" target="_blank">Contact Us</a></li>
+                 </ul>
+             </div>
+             <div class="footer-section">
+                 <h3>Follow Us</h3>
+                 <div class="social-media">
+                     <a href="https://www.facebook.com/swesocietysust" target="_blank" class="social-link">
+                         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                             <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                         </svg>
+                     </a>
+                     <a href="https://twitter.com/swe_society" target="_blank" class="social-link">
+                         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                             <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                         </svg>
+                     </a>
+                     <a href="https://linkedin.com/company/swe-society" target="_blank" class="social-link">
+                         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                             <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                         </svg>
+                     </a>
+                     <a href="https://github.com/swe-society" target="_blank" class="social-link">
+                         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                             <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                         </svg>
+                     </a>
+                 </div>
+             </div>
+             <div class="footer-section">
+                 <h3>Contact</h3>
+                 <p><a href="mailto:swesociety@sust.edu">swesociety@sust.edu</a></p>
+                 <p>Phone: +880 1753610727</p>
+                 <p>Office: Room 123, IICT Building<br>
+                 SUST, Sylhet</p>
+             </div>
+         </div>
+         <div class="footer-bottom">
+             <div class="footer-bottom-content">
+                 <p>©  SWE Society,(IICT) Shahjalal University of Science and Technology. All rights reserved.</p>
+                 <div class="footer-bottom-links">
+                     <a href="#">Privacy Policy</a>
+                     <a href="#">Terms of Service</a>
+                     <a href="#">Support</a>
+                 </div>
+             </div>
+         </div>
+      </footer>
 
-    <script>
-        const API_BASE_URL = `${window.location.origin}/api`;
+       <script>
+           // Toggle functionality for footer sections
+          document.querySelectorAll('.toggle-header').forEach(header => {
+              header.addEventListener('click', () => {
+                  const content = header.nextElementSibling;
+                  const isVisible = content.style.display !== 'none';
+                  content.style.display = isVisible ? 'none' : 'block';
+                  header.classList.toggle('active');
+              });
+          });
 
-        // Get elements
-        const loadingState = document.getElementById('loadingState');
-        const emptyState = document.getElementById('emptyState');
-        const postsGrid = document.getElementById('postsGrid');
-        const loadMoreContainer = document.getElementById('loadMoreContainer');
-        const loadMoreBtn = document.getElementById('loadMoreBtn');
+          // About modal functionality
+          const aboutModal = document.getElementById('aboutModal');
+          const navAbout = document.getElementById('nav-about');
+          const aboutModalOverlay = document.getElementById('aboutModalOverlay');
+          const aboutModalClose = document.getElementById('aboutModalClose');
 
-        let currentPage = 1;
-        let allPosts = [];
+          navAbout.addEventListener('click', () => {
+              aboutModal.classList.add('show');
+          });
 
-        // Get initials from name
-        function getInitials(name) {
-            const names = name.split(' ');
-            if (names.length >= 2) {
-                return (names[0][0] + names[names.length - 1][0]).toUpperCase();
-            }
-            return name.substring(0, 2).toUpperCase();
-        }
+          aboutModalOverlay.addEventListener('click', () => {
+              aboutModal.classList.remove('show');
+          });
 
-        // Load public posts only
-        async function loadPosts(reset = false) {
-            if (reset) {
-                currentPage = 1;
-                allPosts = [];
-                postsGrid.innerHTML = '';
-            }
-
-            loadingState.style.display = 'block';
-            postsGrid.style.display = 'none';
-            emptyState.style.display = 'none';
-
-            try {
-                // Only load public posts
-                const url = `${API_BASE_URL}/posts?page=${currentPage}&limit=12&privacy=public`;
-                
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (response.ok && data.success) {
-                    allPosts = allPosts.concat(data.data);
-                    displayPosts(data.data);
-
-                    if (data.data.length < 12) {
-                        loadMoreContainer.style.display = 'none';
-                    } else {
-                        loadMoreContainer.style.display = 'block';
-                    }
-                } else {
-                    showEmptyState();
-                }
-            } catch (error) {
-                console.error('Error loading posts:', error);
-                showEmptyState();
-            } finally {
-                loadingState.style.display = 'none';
-            }
-        }
-
-        // Display posts
-        function displayPosts(posts) {
-            if (allPosts.length === 0) {
-                showEmptyState();
-                return;
-            }
-
-            postsGrid.style.display = 'grid';
-
-            posts.forEach(post => {
-                const card = createPostCard(post);
-                postsGrid.appendChild(card);
-            });
-        }
-
-        // Create post card (simplified version without likes/comments)
-        function createPostCard(post) {
-            const card = document.createElement('div');
-            card.className = 'post-card';
-
-            const tags = post.tags ? post.tags.split(',').map(t => t.trim()) : [];
-            const description = post.description || 'No description provided';
-            const truncatedDesc = description.length > 150 ? description.substring(0, 150) + '...' : description;
-
-            const authorInitials = getInitials(post.user_name || 'User');
-
-            card.innerHTML = `
-                <div class="post-header">
-                    <h3>${post.name}</h3>
-                    <span class="privacy-badge">public</span>
-                </div>
-                
-                <div class="post-author">
-                    <div class="author-avatar">${authorInitials}</div>
-                    <div class="author-info">
-                        <span class="author-name">${post.user_name || 'Unknown'}</span>
-                        <span class="author-username">@${post.username || 'user'}</span>
-                    </div>
-                </div>
-                
-                <p class="post-description">${truncatedDesc}</p>
-                
-                ${tags.length > 0 ? `
-                    <div class="post-tags">
-                        ${tags.slice(0, 5).map(tag => `<span class="tag">${tag}</span>`).join('')}
-                    </div>
-                ` : ''}
-                
-                <div class="post-footer">
-                    <div class="view-more">
-                        View post details →
-                    </div>
-                    ${post.link ? `<a href="${post.link}" class="post-link" target="_blank" onclick="event.stopPropagation()">View →</a>` : ''}
-                </div>
-            `;
-
-            return card;
-        }
-
-        // Show empty state
-        function showEmptyState() {
-            loadingState.style.display = 'none';
-            postsGrid.style.display = 'none';
-            emptyState.style.display = 'block';
-            loadMoreContainer.style.display = 'none';
-        }
-
-        // Load more button
-        loadMoreBtn.addEventListener('click', () => {
-            currentPage++;
-            loadPosts();
-        });
-
-        // Initialize - load public posts
-        loadPosts(true);
-    </script>
-    <script src="dark-mode.js"></script>
-</body>
-</html>
+          aboutModalClose.addEventListener('click', () => {
+              aboutModal.classList.remove('show');
+          });
+      </script>
+  </body>
+  </html>
