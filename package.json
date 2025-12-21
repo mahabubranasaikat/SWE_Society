@@ -1,7 +1,7 @@
 {
-  "name": "projectra-backend",
+  "name": "swe-society",
   "version": "1.0.0",
-  "description": "Backend API for ProjecTra project management system",
+  "description": "Fullstack application for SWE Society project management system",
   "main": "server.js",
   "scripts": {
     "start": "node backend/server.js",
@@ -11,7 +11,9 @@
     "api",
     "rest",
     "express",
-    "mysql"
+    "mysql",
+    "fullstack",
+    "society management"
   ],
   "author": "",
   "license": "ISC",
@@ -30,10 +32,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mahabubranasaikat/ProjecTra.git"
+    "url": "git+https://github.com/mahabubranasaikat/SWESociety.git"
   },
   "bugs": {
-    "url": "https://github.com/mahabubranasaikat/ProjecTra/issues"
+    "url": "https://github.com/mahabubranasaikat/SWESociety/issues"
   },
-  "homepage": "https://github.com/mahabubranasaikat/ProjecTra#readme"
+  "homepage": "https://github.com/mahabubranasaikat/SWESociety#readme"
 }
