@@ -61,9 +61,9 @@ exports.createApprovalRequest = async (req, res) => {
         const finalRecipientIds = uniqueRecipientIds.filter(id => id !== userId);
 
         if (finalRecipientIds.length === 0) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Cannot create approval with only yourself as recipient' 
+            return res.status(400).json({
+                success: false,
+                message: 'You cannot create an approval request with only yourself as a recipient. Please select other users to approve your request.'
             });
         }
 

@@ -443,8 +443,8 @@ class ApprovalManager {
                     console.error('recipient select element not found');
                     return;
                 }
-                
-                const currentUserId = this.currentUser?.id;
+
+                const currentUserId = this.currentUser?.userId || this.currentUser?.id;
                 const users = result.data.filter(u => u.id !== currentUserId);
                 
                 if (users.length === 0) {
@@ -875,7 +875,7 @@ class ApprovalManager {
                     return;
                 }
 
-                const currentUserId = this.currentUser?.id;
+                const currentUserId = this.currentUser?.userId || this.currentUser?.id;
                 const users = result.data.filter(u => u.id !== currentUserId);
 
                 if (users.length === 0) {

@@ -594,14 +594,27 @@
 @media (max-width: 768px) {
     .nav-container {
         flex-wrap: wrap;
-        gap: 15px;
-        padding: 15px 20px;
+        gap: 10px;
+        padding: 10px 15px;
     }
 
     .nav-center {
         order: 3;
         flex-basis: 100%;
         max-width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .nav-center .btn {
+        font-size: 12px;
+        padding: 8px 12px;
+        margin: 2px;
+    }
+
+    .nav-right {
+        order: 2;
+        flex-wrap: wrap;
     }
 
     .user-info {
@@ -622,5 +635,36 @@
 
     .create-btn span {
         display: none;
+    }
+
+    .logo-svg {
+        height: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-container {
+        padding: 8px 10px;
+        gap: 8px;
+    }
+
+    .nav-center .btn {
+        font-size: 11px;
+        padding: 6px 10px;
+        margin: 1px;
+    }
+
+    .nav-right .btn {
+        font-size: 11px;
+        padding: 6px 10px;
+    }
+
+    .logo-svg {
+        height: 35px;
+    }
+
+    .search-input {
+        font-size: 12px;
+        padding: 8px 40px 8px 15px;
     }
 }

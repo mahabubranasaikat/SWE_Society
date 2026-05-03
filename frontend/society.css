@@ -1588,6 +1588,104 @@ small {
     .event-details {
         padding: 16px;
     }
+
+    /* Cards mobile adjustments */
+    .notice-card,
+    .event-card,
+    .discussion-card,
+    .approval-card {
+        padding: 15px;
+    }
+
+    .notice-header,
+    .event-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .card-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .discussions-list {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .discussion-card {
+        padding: 15px;
+    }
+
+    .tab-navigation {
+        gap: 10px;
+        padding: 4px;
+    }
+
+    .tab-btn {
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+
+    .page-header h2 {
+        font-size: 24px;
+    }
+
+    .subtitle {
+        font-size: 14px;
+    }
+
+    /* Form adjustments */
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    /* Modal adjustments */
+    .modal-content {
+        margin: 10px;
+        max-width: calc(100vw - 20px);
+    }
+
+    .modal-header,
+    .modal-body {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .notice-card,
+    .event-card,
+    .discussion-card,
+    .approval-card {
+        padding: 12px;
+    }
+
+    .tab-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    .tab-navigation {
+        gap: 8px;
+    }
+
+    .page-header h2 {
+        font-size: 20px;
+    }
+
+    .container {
+        padding: 15px 10px 60px;
+    }
+
+    .page-surface {
+        padding: 15px;
+    }
 }
 
 /* Meeting Room Creation Styles */
